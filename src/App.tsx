@@ -9,10 +9,13 @@ import { Separator } from '@/components/ui/separator'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { toast } from 'sonner'
 import { House, Info, Trash, CursorClick, Plus, X, CaretDown, CaretUp } from '@phosphor-icons/react'
 import { AIDecisions } from '@/components/AIDecisions'
 import { Dayparting } from '@/components/Dayparting'
+
+type OptimizationType = 'eva-ai' | 'dont-optimize' | 'custom'
 
 interface Optimization {
   id: string
@@ -21,7 +24,7 @@ interface Optimization {
   condition: string
 }
 
-const DAILY_BIDDING_OPTIMIZATIONS: Optimization[] = [
+const DEFAULT_DAILY_BIDDING_OPTIMIZATIONS: Optimization[] = [
   {
     id: '1',
     title: 'Daily Bid - Decrease - No Order',
@@ -69,14 +72,21 @@ const defaultSettings: StoreSettings = {
 
 function App() {
   const [settings, setSettings] = useKV<StoreSettings>('store-settings', defaultSettings)
+  const [dailyBiddingOptimizations, setDailyBiddingOptimizations] = useKV<Optimization[]>('daily-bidding-optimizations', DEFAULT_DAILY_BIDDING_OPTIMIZATIONS)
+  const [inventoryGuardOptimizations, setInventoryGuardOptimizations] = useKV<Optimization[]>('inventory-guard-optimizations', [])
+  const [campaignCreationOptimizations, setCampaignCreationOptimizations] = useKV<Optimization[]>('campaign-creation-optimizations', [])
+  const [negatingOptimizations, setNegatingOptimizations] = useKV<Optimization[]>('negating-optimizations', [])
+  
   const [activeTab, setActiveTab] = useState('store-settings')
   const [dailyBiddingDialogOpen, setDailyBiddingDialogOpen] = useState(false)
   const [dailyBiddingOpen, setDailyBiddingOpen] = useState(false)
   const [inventoryGuardOpen, setInventoryGuardOpen] = useState(false)
   const [campaignCreationOpen, setCampaignCreationOpen] = useState(false)
   const [negatingOpen, setNegatingOpen] = useState(false)
+  const [addOptimizationPopoverOpen, setAddOptimizationPopoverOpen] = useState<string | null>(null)
+  const [currentOptimizationSection, setCurrentOptimizationSection] = useState<'daily-bidding' | 'inventory-guard' | 'campaign-creation' | 'negating' | null>(null)
 
-  if (!settings) {
+  if (!settings || !dailyBiddingOptimizations) {
     return null
   }
 
@@ -96,6 +106,119 @@ function App() {
   const applyRecommendation = (field: 'minBid' | 'maxBid' | 'targetAcos', value: string) => {
     updateSetting(field, value)
     toast.info(`Applied recommendation: ${value}`)
+  }
+
+  const moveOptimizationUp = (index: number, section: 'daily-bidding' | 'inventory-guard' | 'campaign-creation' | 'negating') => {
+    if (index === 0) return
+    
+    const getOptimizations = () => {
+      switch(section) {
+        case 'daily-bidding': return dailyBiddingOptimizations
+        case 'inventory-guard': return inventoryGuardOptimizations || []
+        case 'campaign-creation': return campaignCreationOptimizations || []
+        case 'negating': return negatingOptimizations || []
+      }
+    }
+    
+    const setOptimizations = (newOptimizations: Optimization[]) => {
+      switch(section) {
+        case 'daily-bidding': setDailyBiddingOptimizations(newOptimizations); break
+        case 'inventory-guard': setInventoryGuardOptimizations(newOptimizations); break
+        case 'campaign-creation': setCampaignCreationOptimizations(newOptimizations); break
+        case 'negating': setNegatingOptimizations(newOptimizations); break
+      }
+    }
+    
+    const optimizations = getOptimizations()
+    const newOptimizations = [...optimizations]
+    const temp = newOptimizations[index]
+    newOptimizations[index] = newOptimizations[index - 1]
+    newOptimizations[index - 1] = temp
+    
+    newOptimizations.forEach((opt, i) => {
+      opt.id = String(i + 1)
+    })
+    
+    setOptimizations(newOptimizations)
+    toast.success('Optimization priority updated')
+  }
+
+  const moveOptimizationDown = (index: number, section: 'daily-bidding' | 'inventory-guard' | 'campaign-creation' | 'negating') => {
+    const getOptimizations = () => {
+      switch(section) {
+        case 'daily-bidding': return dailyBiddingOptimizations
+        case 'inventory-guard': return inventoryGuardOptimizations || []
+        case 'campaign-creation': return campaignCreationOptimizations || []
+        case 'negating': return negatingOptimizations || []
+      }
+    }
+    
+    const optimizations = getOptimizations()
+    if (index === optimizations.length - 1) return
+    
+    const setOptimizations = (newOptimizations: Optimization[]) => {
+      switch(section) {
+        case 'daily-bidding': setDailyBiddingOptimizations(newOptimizations); break
+        case 'inventory-guard': setInventoryGuardOptimizations(newOptimizations); break
+        case 'campaign-creation': setCampaignCreationOptimizations(newOptimizations); break
+        case 'negating': setNegatingOptimizations(newOptimizations); break
+      }
+    }
+    
+    const newOptimizations = [...optimizations]
+    const temp = newOptimizations[index]
+    newOptimizations[index] = newOptimizations[index + 1]
+    newOptimizations[index + 1] = temp
+    
+    newOptimizations.forEach((opt, i) => {
+      opt.id = String(i + 1)
+    })
+    
+    setOptimizations(newOptimizations)
+    toast.success('Optimization priority updated')
+  }
+
+  const deleteOptimization = (index: number, section: 'daily-bidding' | 'inventory-guard' | 'campaign-creation' | 'negating') => {
+    const getOptimizations = () => {
+      switch(section) {
+        case 'daily-bidding': return dailyBiddingOptimizations
+        case 'inventory-guard': return inventoryGuardOptimizations || []
+        case 'campaign-creation': return campaignCreationOptimizations || []
+        case 'negating': return negatingOptimizations || []
+      }
+    }
+    
+    const setOptimizations = (newOptimizations: Optimization[]) => {
+      switch(section) {
+        case 'daily-bidding': setDailyBiddingOptimizations(newOptimizations); break
+        case 'inventory-guard': setInventoryGuardOptimizations(newOptimizations); break
+        case 'campaign-creation': setCampaignCreationOptimizations(newOptimizations); break
+        case 'negating': setNegatingOptimizations(newOptimizations); break
+      }
+    }
+    
+    const optimizations = getOptimizations()
+    const newOptimizations = optimizations.filter((_, i) => i !== index)
+    
+    newOptimizations.forEach((opt, i) => {
+      opt.id = String(i + 1)
+    })
+    
+    setOptimizations(newOptimizations)
+    toast.success('Optimization deleted')
+  }
+
+  const handleOptimizationTypeSelect = (type: OptimizationType, section: 'daily-bidding' | 'inventory-guard' | 'campaign-creation' | 'negating') => {
+    setAddOptimizationPopoverOpen(null)
+    
+    if (type === 'eva-ai') {
+      toast.info('Eva AI will optimize this automatically')
+    } else if (type === 'dont-optimize') {
+      toast.info('Optimization disabled for this section')
+    } else if (type === 'custom') {
+      setCurrentOptimizationSection(section)
+      setDailyBiddingDialogOpen(true)
+    }
   }
 
   return (
@@ -274,7 +397,7 @@ function App() {
                             <div className="flex items-center gap-3">
                               <Label className="text-sm font-medium text-card-foreground cursor-pointer">Daily Bid Optimizations</Label>
                               <div className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
-                                {DAILY_BIDDING_OPTIMIZATIONS.length} added
+                                {dailyBiddingOptimizations.length} added
                               </div>
                             </div>
                             <div className="flex items-center gap-3">
@@ -285,17 +408,45 @@ function App() {
                               >
                                 See all
                               </Button>
-                              <Button
-                                size="sm"
-                                className="bg-primary hover:bg-accent text-primary-foreground h-7 px-3 text-xs font-semibold shadow-sm"
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  setDailyBiddingDialogOpen(true)
-                                }}
-                              >
-                                <Plus size={14} weight="regular" className="mr-1" />
-                                Add Optimization
-                              </Button>
+                              <Popover open={addOptimizationPopoverOpen === 'daily-bidding'} onOpenChange={(open) => setAddOptimizationPopoverOpen(open ? 'daily-bidding' : null)}>
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    size="sm"
+                                    className="bg-primary hover:bg-accent text-primary-foreground h-7 px-3 text-xs font-semibold shadow-sm"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                    }}
+                                  >
+                                    <Plus size={14} weight="regular" className="mr-1" />
+                                    Add Optimization
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-64 p-2" align="end" onClick={(e) => e.stopPropagation()}>
+                                  <div className="space-y-1">
+                                    <button
+                                      onClick={() => handleOptimizationTypeSelect('eva-ai', 'daily-bidding')}
+                                      className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
+                                    >
+                                      <div className="font-medium text-card-foreground">Optimized by Eva AI</div>
+                                      <div className="text-xs text-muted-foreground mt-0.5">Let AI handle optimization</div>
+                                    </button>
+                                    <button
+                                      onClick={() => handleOptimizationTypeSelect('dont-optimize', 'daily-bidding')}
+                                      className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
+                                    >
+                                      <div className="font-medium text-card-foreground">Don't Optimize</div>
+                                      <div className="text-xs text-muted-foreground mt-0.5">Disable optimization</div>
+                                    </button>
+                                    <button
+                                      onClick={() => handleOptimizationTypeSelect('custom', 'daily-bidding')}
+                                      className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
+                                    >
+                                      <div className="font-medium text-card-foreground">Create Your Own</div>
+                                      <div className="text-xs text-muted-foreground mt-0.5">Build custom rules</div>
+                                    </button>
+                                  </div>
+                                </PopoverContent>
+                              </Popover>
                               <CaretDown size={20} weight="bold" className={`text-muted-foreground transition-transform ${dailyBiddingOpen ? 'rotate-180' : ''}`} />
                             </div>
                           </CollapsibleTrigger>
@@ -313,15 +464,23 @@ function App() {
                                     </tr>
                                   </thead>
                                   <tbody className="bg-card">
-                                    {DAILY_BIDDING_OPTIMIZATIONS.map((opt) => (
+                                    {dailyBiddingOptimizations.map((opt, index) => (
                                       <tr key={opt.id} className="border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors group">
                                         <td className="py-3 px-4">
                                           <div className="flex items-center gap-2">
-                                            <button className="text-muted-foreground hover:text-card-foreground transition-colors">
+                                            <button 
+                                              onClick={() => moveOptimizationUp(index, 'daily-bidding')}
+                                              disabled={index === 0}
+                                              className="text-muted-foreground hover:text-card-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                            >
                                               <CaretUp size={14} weight="bold" />
                                             </button>
                                             <span className="text-sm font-medium text-card-foreground">{opt.id}.</span>
-                                            <button className="text-muted-foreground hover:text-card-foreground transition-colors">
+                                            <button 
+                                              onClick={() => moveOptimizationDown(index, 'daily-bidding')}
+                                              disabled={index === dailyBiddingOptimizations.length - 1}
+                                              className="text-muted-foreground hover:text-card-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                            >
                                               <CaretDown size={14} weight="bold" />
                                             </button>
                                           </div>
@@ -336,7 +495,10 @@ function App() {
                                           <span className="text-sm text-foreground">{opt.condition}</span>
                                         </td>
                                         <td className="py-3 px-4 text-right">
-                                          <button className="text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100">
+                                          <button 
+                                            onClick={() => deleteOptimization(index, 'daily-bidding')}
+                                            className="text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100"
+                                          >
                                             <Trash size={16} weight="regular" />
                                           </button>
                                         </td>
@@ -355,8 +517,8 @@ function App() {
                           <CollapsibleTrigger className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
                             <div className="flex items-center gap-3">
                               <Label className="text-sm font-medium text-card-foreground cursor-pointer">Inventory & Performance Guard</Label>
-                              <div className="px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-xs font-medium">
-                                0 added
+                              <div className={`px-2 py-0.5 rounded-full text-xs font-medium ${(inventoryGuardOptimizations?.length || 0) > 0 ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
+                                {inventoryGuardOptimizations?.length || 0} added
                               </div>
                             </div>
                             <div className="flex items-center gap-3">
@@ -367,25 +529,111 @@ function App() {
                               >
                                 See all
                               </Button>
-                              <Button
-                                size="sm"
-                                className="bg-primary hover:bg-accent text-primary-foreground h-7 px-3 text-xs font-semibold shadow-sm"
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  toast.info('Create inventory guard optimization')
-                                }}
-                              >
-                                <Plus size={14} weight="regular" className="mr-1" />
-                                Add Optimization
-                              </Button>
+                              <Popover open={addOptimizationPopoverOpen === 'inventory-guard'} onOpenChange={(open) => setAddOptimizationPopoverOpen(open ? 'inventory-guard' : null)}>
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    size="sm"
+                                    className="bg-primary hover:bg-accent text-primary-foreground h-7 px-3 text-xs font-semibold shadow-sm"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                    }}
+                                  >
+                                    <Plus size={14} weight="regular" className="mr-1" />
+                                    Add Optimization
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-64 p-2" align="end" onClick={(e) => e.stopPropagation()}>
+                                  <div className="space-y-1">
+                                    <button
+                                      onClick={() => handleOptimizationTypeSelect('eva-ai', 'inventory-guard')}
+                                      className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
+                                    >
+                                      <div className="font-medium text-card-foreground">Optimized by Eva AI</div>
+                                      <div className="text-xs text-muted-foreground mt-0.5">Let AI handle optimization</div>
+                                    </button>
+                                    <button
+                                      onClick={() => handleOptimizationTypeSelect('dont-optimize', 'inventory-guard')}
+                                      className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
+                                    >
+                                      <div className="font-medium text-card-foreground">Don't Optimize</div>
+                                      <div className="text-xs text-muted-foreground mt-0.5">Disable optimization</div>
+                                    </button>
+                                    <button
+                                      onClick={() => handleOptimizationTypeSelect('custom', 'inventory-guard')}
+                                      className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
+                                    >
+                                      <div className="font-medium text-card-foreground">Create Your Own</div>
+                                      <div className="text-xs text-muted-foreground mt-0.5">Build custom rules</div>
+                                    </button>
+                                  </div>
+                                </PopoverContent>
+                              </Popover>
                               <CaretDown size={20} weight="bold" className={`text-muted-foreground transition-transform ${inventoryGuardOpen ? 'rotate-180' : ''}`} />
                             </div>
                           </CollapsibleTrigger>
                           <CollapsibleContent>
                             <div className="px-4 pb-4">
-                              <div className="text-center py-8 text-sm text-muted-foreground">
-                                No optimizations configured yet. Click "Add Optimization" to create one.
-                              </div>
+                              {(inventoryGuardOptimizations?.length || 0) > 0 ? (
+                                <div className="border border-border rounded-lg overflow-hidden">
+                                  <table className="w-full">
+                                    <thead className="bg-muted/30">
+                                      <tr className="border-b border-border">
+                                        <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide w-8"></th>
+                                        <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Title</th>
+                                        <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Action</th>
+                                        <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Condition</th>
+                                        <th className="w-12"></th>
+                                      </tr>
+                                    </thead>
+                                    <tbody className="bg-card">
+                                      {inventoryGuardOptimizations?.map((opt, index) => (
+                                        <tr key={opt.id} className="border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors group">
+                                          <td className="py-3 px-4">
+                                            <div className="flex items-center gap-2">
+                                              <button 
+                                                onClick={() => moveOptimizationUp(index, 'inventory-guard')}
+                                                disabled={index === 0}
+                                                className="text-muted-foreground hover:text-card-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                              >
+                                                <CaretUp size={14} weight="bold" />
+                                              </button>
+                                              <span className="text-sm font-medium text-card-foreground">{opt.id}.</span>
+                                              <button 
+                                                onClick={() => moveOptimizationDown(index, 'inventory-guard')}
+                                                disabled={index === (inventoryGuardOptimizations?.length || 0) - 1}
+                                                className="text-muted-foreground hover:text-card-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                              >
+                                                <CaretDown size={14} weight="bold" />
+                                              </button>
+                                            </div>
+                                          </td>
+                                          <td className="py-3 px-4">
+                                            <span className="text-sm text-primary font-medium">{opt.title}</span>
+                                          </td>
+                                          <td className="py-3 px-4">
+                                            <span className="text-sm text-foreground">{opt.action}</span>
+                                          </td>
+                                          <td className="py-3 px-4">
+                                            <span className="text-sm text-foreground">{opt.condition}</span>
+                                          </td>
+                                          <td className="py-3 px-4 text-right">
+                                            <button 
+                                              onClick={() => deleteOptimization(index, 'inventory-guard')}
+                                              className="text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100"
+                                            >
+                                              <Trash size={16} weight="regular" />
+                                            </button>
+                                          </td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              ) : (
+                                <div className="text-center py-8 text-sm text-muted-foreground">
+                                  No optimizations configured yet. Click "Add Optimization" to create one.
+                                </div>
+                              )}
                             </div>
                           </CollapsibleContent>
                         </div>
@@ -396,8 +644,8 @@ function App() {
                           <CollapsibleTrigger className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
                             <div className="flex items-center gap-3">
                               <Label className="text-sm font-medium text-card-foreground cursor-pointer">Campaign Creation</Label>
-                              <div className="px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-xs font-medium">
-                                0 added
+                              <div className={`px-2 py-0.5 rounded-full text-xs font-medium ${(campaignCreationOptimizations?.length || 0) > 0 ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
+                                {campaignCreationOptimizations?.length || 0} added
                               </div>
                             </div>
                             <div className="flex items-center gap-3">
@@ -408,25 +656,111 @@ function App() {
                               >
                                 See all
                               </Button>
-                              <Button
-                                size="sm"
-                                className="bg-primary hover:bg-accent text-primary-foreground h-7 px-3 text-xs font-semibold shadow-sm"
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  toast.info('Create campaign creation optimization')
-                                }}
-                              >
-                                <Plus size={14} weight="regular" className="mr-1" />
-                                Add Optimization
-                              </Button>
+                              <Popover open={addOptimizationPopoverOpen === 'campaign-creation'} onOpenChange={(open) => setAddOptimizationPopoverOpen(open ? 'campaign-creation' : null)}>
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    size="sm"
+                                    className="bg-primary hover:bg-accent text-primary-foreground h-7 px-3 text-xs font-semibold shadow-sm"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                    }}
+                                  >
+                                    <Plus size={14} weight="regular" className="mr-1" />
+                                    Add Optimization
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-64 p-2" align="end" onClick={(e) => e.stopPropagation()}>
+                                  <div className="space-y-1">
+                                    <button
+                                      onClick={() => handleOptimizationTypeSelect('eva-ai', 'campaign-creation')}
+                                      className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
+                                    >
+                                      <div className="font-medium text-card-foreground">Optimized by Eva AI</div>
+                                      <div className="text-xs text-muted-foreground mt-0.5">Let AI handle optimization</div>
+                                    </button>
+                                    <button
+                                      onClick={() => handleOptimizationTypeSelect('dont-optimize', 'campaign-creation')}
+                                      className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
+                                    >
+                                      <div className="font-medium text-card-foreground">Don't Optimize</div>
+                                      <div className="text-xs text-muted-foreground mt-0.5">Disable optimization</div>
+                                    </button>
+                                    <button
+                                      onClick={() => handleOptimizationTypeSelect('custom', 'campaign-creation')}
+                                      className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
+                                    >
+                                      <div className="font-medium text-card-foreground">Create Your Own</div>
+                                      <div className="text-xs text-muted-foreground mt-0.5">Build custom rules</div>
+                                    </button>
+                                  </div>
+                                </PopoverContent>
+                              </Popover>
                               <CaretDown size={20} weight="bold" className={`text-muted-foreground transition-transform ${campaignCreationOpen ? 'rotate-180' : ''}`} />
                             </div>
                           </CollapsibleTrigger>
                           <CollapsibleContent>
                             <div className="px-4 pb-4">
-                              <div className="text-center py-8 text-sm text-muted-foreground">
-                                No optimizations configured yet. Click "Add Optimization" to create one.
-                              </div>
+                              {(campaignCreationOptimizations?.length || 0) > 0 ? (
+                                <div className="border border-border rounded-lg overflow-hidden">
+                                  <table className="w-full">
+                                    <thead className="bg-muted/30">
+                                      <tr className="border-b border-border">
+                                        <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide w-8"></th>
+                                        <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Title</th>
+                                        <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Action</th>
+                                        <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Condition</th>
+                                        <th className="w-12"></th>
+                                      </tr>
+                                    </thead>
+                                    <tbody className="bg-card">
+                                      {campaignCreationOptimizations?.map((opt, index) => (
+                                        <tr key={opt.id} className="border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors group">
+                                          <td className="py-3 px-4">
+                                            <div className="flex items-center gap-2">
+                                              <button 
+                                                onClick={() => moveOptimizationUp(index, 'campaign-creation')}
+                                                disabled={index === 0}
+                                                className="text-muted-foreground hover:text-card-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                              >
+                                                <CaretUp size={14} weight="bold" />
+                                              </button>
+                                              <span className="text-sm font-medium text-card-foreground">{opt.id}.</span>
+                                              <button 
+                                                onClick={() => moveOptimizationDown(index, 'campaign-creation')}
+                                                disabled={index === (campaignCreationOptimizations?.length || 0) - 1}
+                                                className="text-muted-foreground hover:text-card-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                              >
+                                                <CaretDown size={14} weight="bold" />
+                                              </button>
+                                            </div>
+                                          </td>
+                                          <td className="py-3 px-4">
+                                            <span className="text-sm text-primary font-medium">{opt.title}</span>
+                                          </td>
+                                          <td className="py-3 px-4">
+                                            <span className="text-sm text-foreground">{opt.action}</span>
+                                          </td>
+                                          <td className="py-3 px-4">
+                                            <span className="text-sm text-foreground">{opt.condition}</span>
+                                          </td>
+                                          <td className="py-3 px-4 text-right">
+                                            <button 
+                                              onClick={() => deleteOptimization(index, 'campaign-creation')}
+                                              className="text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100"
+                                            >
+                                              <Trash size={16} weight="regular" />
+                                            </button>
+                                          </td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              ) : (
+                                <div className="text-center py-8 text-sm text-muted-foreground">
+                                  No optimizations configured yet. Click "Add Optimization" to create one.
+                                </div>
+                              )}
                             </div>
                           </CollapsibleContent>
                         </div>
@@ -437,8 +771,8 @@ function App() {
                           <CollapsibleTrigger className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
                             <div className="flex items-center gap-3">
                               <Label className="text-sm font-medium text-card-foreground cursor-pointer">Negation</Label>
-                              <div className="px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-xs font-medium">
-                                0 added
+                              <div className={`px-2 py-0.5 rounded-full text-xs font-medium ${(negatingOptimizations?.length || 0) > 0 ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
+                                {negatingOptimizations?.length || 0} added
                               </div>
                             </div>
                             <div className="flex items-center gap-3">
@@ -449,25 +783,111 @@ function App() {
                               >
                                 See all
                               </Button>
-                              <Button
-                                size="sm"
-                                className="bg-primary hover:bg-accent text-primary-foreground h-7 px-3 text-xs font-semibold shadow-sm"
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  toast.info('Create negation optimization')
-                                }}
-                              >
-                                <Plus size={14} weight="regular" className="mr-1" />
-                                Add Optimization
-                              </Button>
+                              <Popover open={addOptimizationPopoverOpen === 'negating'} onOpenChange={(open) => setAddOptimizationPopoverOpen(open ? 'negating' : null)}>
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    size="sm"
+                                    className="bg-primary hover:bg-accent text-primary-foreground h-7 px-3 text-xs font-semibold shadow-sm"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                    }}
+                                  >
+                                    <Plus size={14} weight="regular" className="mr-1" />
+                                    Add Optimization
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-64 p-2" align="end" onClick={(e) => e.stopPropagation()}>
+                                  <div className="space-y-1">
+                                    <button
+                                      onClick={() => handleOptimizationTypeSelect('eva-ai', 'negating')}
+                                      className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
+                                    >
+                                      <div className="font-medium text-card-foreground">Optimized by Eva AI</div>
+                                      <div className="text-xs text-muted-foreground mt-0.5">Let AI handle optimization</div>
+                                    </button>
+                                    <button
+                                      onClick={() => handleOptimizationTypeSelect('dont-optimize', 'negating')}
+                                      className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
+                                    >
+                                      <div className="font-medium text-card-foreground">Don't Optimize</div>
+                                      <div className="text-xs text-muted-foreground mt-0.5">Disable optimization</div>
+                                    </button>
+                                    <button
+                                      onClick={() => handleOptimizationTypeSelect('custom', 'negating')}
+                                      className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
+                                    >
+                                      <div className="font-medium text-card-foreground">Create Your Own</div>
+                                      <div className="text-xs text-muted-foreground mt-0.5">Build custom rules</div>
+                                    </button>
+                                  </div>
+                                </PopoverContent>
+                              </Popover>
                               <CaretDown size={20} weight="bold" className={`text-muted-foreground transition-transform ${negatingOpen ? 'rotate-180' : ''}`} />
                             </div>
                           </CollapsibleTrigger>
                           <CollapsibleContent>
                             <div className="px-4 pb-4">
-                              <div className="text-center py-8 text-sm text-muted-foreground">
-                                No optimizations configured yet. Click "Add Optimization" to create one.
-                              </div>
+                              {(negatingOptimizations?.length || 0) > 0 ? (
+                                <div className="border border-border rounded-lg overflow-hidden">
+                                  <table className="w-full">
+                                    <thead className="bg-muted/30">
+                                      <tr className="border-b border-border">
+                                        <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide w-8"></th>
+                                        <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Title</th>
+                                        <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Action</th>
+                                        <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Condition</th>
+                                        <th className="w-12"></th>
+                                      </tr>
+                                    </thead>
+                                    <tbody className="bg-card">
+                                      {negatingOptimizations?.map((opt, index) => (
+                                        <tr key={opt.id} className="border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors group">
+                                          <td className="py-3 px-4">
+                                            <div className="flex items-center gap-2">
+                                              <button 
+                                                onClick={() => moveOptimizationUp(index, 'negating')}
+                                                disabled={index === 0}
+                                                className="text-muted-foreground hover:text-card-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                              >
+                                                <CaretUp size={14} weight="bold" />
+                                              </button>
+                                              <span className="text-sm font-medium text-card-foreground">{opt.id}.</span>
+                                              <button 
+                                                onClick={() => moveOptimizationDown(index, 'negating')}
+                                                disabled={index === (negatingOptimizations?.length || 0) - 1}
+                                                className="text-muted-foreground hover:text-card-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                              >
+                                                <CaretDown size={14} weight="bold" />
+                                              </button>
+                                            </div>
+                                          </td>
+                                          <td className="py-3 px-4">
+                                            <span className="text-sm text-primary font-medium">{opt.title}</span>
+                                          </td>
+                                          <td className="py-3 px-4">
+                                            <span className="text-sm text-foreground">{opt.action}</span>
+                                          </td>
+                                          <td className="py-3 px-4">
+                                            <span className="text-sm text-foreground">{opt.condition}</span>
+                                          </td>
+                                          <td className="py-3 px-4 text-right">
+                                            <button 
+                                              onClick={() => deleteOptimization(index, 'negating')}
+                                              className="text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100"
+                                            >
+                                              <Trash size={16} weight="regular" />
+                                            </button>
+                                          </td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              ) : (
+                                <div className="text-center py-8 text-sm text-muted-foreground">
+                                  No optimizations configured yet. Click "Add Optimization" to create one.
+                                </div>
+                              )}
                             </div>
                           </CollapsibleContent>
                         </div>
