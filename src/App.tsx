@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { toast } from 'sonner'
 import { House, Info, Trash, CursorClick, Plus, X, CaretDown } from '@phosphor-icons/react'
 import { AIDecisions } from '@/components/AIDecisions'
+import { Dayparting } from '@/components/Dayparting'
 
 type FocusStrategy = 'growth-focused' | 'lean-growth' | 'balanced' | 'lean-profit' | 'profit-focused'
 type TargetType = 'acos' | 'tacos'
@@ -23,7 +24,7 @@ interface StoreSettings {
   maxBid: string
   targetAcos: string
   dailyBidding: string
-  dayparting: string
+  inventoryGuard: string
   campaignCreation: string
   negating: string
 }
@@ -35,7 +36,7 @@ const defaultSettings: StoreSettings = {
   maxBid: '$3.00',
   targetAcos: '35.00%',
   dailyBidding: 'Smart Bid Optimizer',
-  dayparting: "Don't Optimize",
+  inventoryGuard: "Don't Optimize",
   campaignCreation: "Don't Optimize",
   negating: 'Negation'
 }
@@ -45,7 +46,7 @@ function App() {
   const [activeTab, setActiveTab] = useState('store-settings')
   const [dailyBiddingDialogOpen, setDailyBiddingDialogOpen] = useState(false)
   const [dailyBiddingOpen, setDailyBiddingOpen] = useState(false)
-  const [daypartingOpen, setDaypartingOpen] = useState(false)
+  const [inventoryGuardOpen, setInventoryGuardOpen] = useState(false)
   const [campaignCreationOpen, setCampaignCreationOpen] = useState(false)
   const [negatingOpen, setNegatingOpen] = useState(false)
 
@@ -94,6 +95,12 @@ function App() {
                 className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary bg-transparent px-1 pb-3 text-sm font-medium text-muted-foreground data-[state=active]:shadow-none"
               >
                 Store Settings
+              </TabsTrigger>
+              <TabsTrigger 
+                value="dayparting"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary bg-transparent px-1 pb-3 text-sm font-medium text-muted-foreground data-[state=active]:shadow-none"
+              >
+                Dayparting
               </TabsTrigger>
               <TabsTrigger 
                 value="ai-decisions"
@@ -266,24 +273,25 @@ function App() {
                         </div>
                       </Collapsible>
 
-                      <Collapsible open={daypartingOpen} onOpenChange={setDaypartingOpen}>
+                      <Collapsible open={inventoryGuardOpen} onOpenChange={setInventoryGuardOpen}>
                         <div className="border border-border rounded-lg">
                           <CollapsibleTrigger className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
                             <div className="flex items-center gap-2">
-                              <Label className="text-sm font-medium text-card-foreground cursor-pointer">Dayparting</Label>
+                              <Label className="text-sm font-medium text-card-foreground cursor-pointer">Inventory & Performance Guard</Label>
                               <Info size={14} weight="regular" className="text-muted-foreground cursor-help" />
                             </div>
-                            <CaretDown size={20} weight="bold" className={`text-muted-foreground transition-transform ${daypartingOpen ? 'rotate-180' : ''}`} />
+                            <CaretDown size={20} weight="bold" className={`text-muted-foreground transition-transform ${inventoryGuardOpen ? 'rotate-180' : ''}`} />
                           </CollapsibleTrigger>
                           <CollapsibleContent>
                             <div className="p-4 pt-0">
-                              <Select value={settings.dayparting} onValueChange={(v) => updateSetting('dayparting', v)}>
+                              <Select value={settings.inventoryGuard} onValueChange={(v) => updateSetting('inventoryGuard', v)}>
                                 <SelectTrigger className="bg-input border-border text-card-foreground font-medium">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
                                   <SelectItem value="Don't Optimize">Don't Optimize</SelectItem>
-                                  <SelectItem value="Optimize for Peak Hours">Optimize for Peak Hours</SelectItem>
+                                  <SelectItem value="Monitor Inventory">Monitor Inventory</SelectItem>
+                                  <SelectItem value="Auto-Adjust for Stock">Auto-Adjust for Stock</SelectItem>
                                 </SelectContent>
                               </Select>
                             </div>
@@ -361,6 +369,12 @@ function App() {
                     </div>
                   </div>
                 </div>
+              </main>
+            </TabsContent>
+
+            <TabsContent value="dayparting" className="mt-0">
+              <main className="flex-grow p-6 lg:p-8 overflow-auto">
+                <Dayparting />
               </main>
             </TabsContent>
 
