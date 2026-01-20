@@ -6,7 +6,6 @@ import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -83,13 +82,13 @@ function App() {
   const [negatingOptimizations, setNegatingOptimizations] = useKV<Optimization[]>('negating-optimizations', [])
   
   const [activeTab, setActiveTab] = useState('store-settings')
-  const [dailyBiddingDialogOpen, setDailyBiddingDialogOpen] = useState(false)
   const [dailyBiddingOpen, setDailyBiddingOpen] = useState(false)
   const [inventoryGuardOpen, setInventoryGuardOpen] = useState(false)
   const [negatingOpen, setNegatingOpen] = useState(false)
   const [addOptimizationPopoverOpen, setAddOptimizationPopoverOpen] = useState<string | null>(null)
   const [currentOptimizationSection, setCurrentOptimizationSection] = useState<'daily-bidding' | 'inventory-guard' | 'negating' | 'campaign-creation' | null>(null)
   const [showOnboarding, setShowOnboarding] = useState(false)
+  const [showOptimizationBuilder, setShowOptimizationBuilder] = useState(false)
 
   useEffect(() => {
     if (!onboardingComplete) {
@@ -235,8 +234,13 @@ function App() {
       toast.info('Optimization disabled for this section')
     } else if (type === 'custom') {
       setCurrentOptimizationSection(section)
-      setDailyBiddingDialogOpen(true)
+      setShowOptimizationBuilder(true)
     }
+  }
+
+  const handleBackToSettings = () => {
+    setShowOptimizationBuilder(false)
+    setCurrentOptimizationSection(null)
   }
 
   return (
@@ -306,14 +310,16 @@ function App() {
 
             <TabsContent value="store-settings" className="mt-0">
               <main className="flex-grow p-6 lg:p-8 overflow-auto">
-                <div className="mb-6">
-                  <h2 className="text-lg font-semibold text-card-foreground mb-2">Configure Your Store Settings</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Define your advertising strategy, set bidding parameters, and configure automated optimizations to maximize your campaign performance.
-                  </p>
-                </div>
+                {!showOptimizationBuilder ? (
+                  <>
+                    <div className="mb-6">
+                      <h2 className="text-lg font-semibold text-card-foreground mb-2">Configure Your Store Settings</h2>
+                      <p className="text-sm text-muted-foreground">
+                        Define your advertising strategy, set bidding parameters, and configure automated optimizations to maximize your campaign performance.
+                      </p>
+                    </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                   <div className="lg:col-span-4 flex flex-col gap-6">
                     <div className="bg-card rounded-lg shadow-sm p-6 border border-border">
                       <div className="space-y-6">
@@ -942,6 +948,360 @@ function App() {
                     </div>
                   </div>
                 </div>
+                  </>
+                ) : (
+                  <div className="max-w-[2400px] mx-auto">
+                    <div className="mb-6 flex items-center justify-between">
+                      <div>
+                        <h2 className="text-lg font-semibold text-card-foreground mb-2">Custom Optimization Builder</h2>
+                        <p className="text-sm text-muted-foreground">
+                          Create automated rules to optimize your campaign performance based on custom conditions and actions.
+                        </p>
+                      </div>
+                      <Button
+                        variant="outline"
+                        onClick={handleBackToSettings}
+                        className="text-sm font-medium"
+                      >
+                        ← Back to Settings
+                      </Button>
+                    </div>
+
+                    <div className="space-y-6">
+                      <div className="bg-muted/20 rounded-lg p-8 border border-border">
+                        <div className="flex items-start gap-3 mb-6">
+                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-semibold text-sm flex-shrink-0">
+                            1
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="text-base font-semibold text-card-foreground mb-1">Name Your Optimization</h3>
+                            <p className="text-sm text-muted-foreground mb-4">
+                              Give this optimization a descriptive name to easily identify it later.
+                            </p>
+                            <Input 
+                              defaultValue="Daily Bid"
+                              className="bg-input border-border text-card-foreground max-w-2xl h-11 text-sm"
+                              placeholder="e.g., Daily Bid Adjustment, Weekend Boost, etc."
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-muted/20 rounded-lg p-8 border border-border">
+                        <div className="flex items-start gap-3 mb-6">
+                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-semibold text-sm flex-shrink-0">
+                            2
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="text-base font-semibold text-card-foreground mb-1">Define Conditions</h3>
+                            <p className="text-sm text-muted-foreground">
+                              Set the performance criteria that will trigger this optimization. You can add multiple conditions.
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="pl-11 mb-6">
+                          <div className="bg-gradient-to-br from-primary/5 to-accent/5 rounded-lg p-5 border border-primary/20">
+                            <div className="flex items-center gap-2 mb-4">
+                              <Lightbulb size={18} weight="fill" className="text-primary" />
+                              <h4 className="text-sm font-semibold text-card-foreground">Quick Start Templates</h4>
+                            </div>
+                            <p className="text-xs text-muted-foreground mb-4">
+                              Select a preset template to quickly configure common optimization scenarios. You can customize after applying.
+                            </p>
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                              <button className="group bg-card hover:bg-accent/10 border-2 border-border hover:border-primary/40 rounded-lg p-4 text-left transition-all">
+                                <div className="flex items-start justify-between mb-2">
+                                  <h5 className="text-sm font-semibold text-card-foreground group-hover:text-primary transition-colors">High ACoS Reduction</h5>
+                                  <Badge variant="outline" className="text-xs bg-destructive/10 text-destructive border-destructive/30">Popular</Badge>
+                                </div>
+                                <p className="text-xs text-muted-foreground mb-3">
+                                  Automatically decrease bids when ACoS exceeds your target threshold
+                                </p>
+                                <div className="flex items-center gap-2 text-xs">
+                                  <span className="px-2 py-0.5 rounded bg-muted text-muted-foreground">ACoS &gt; Target</span>
+                                  <span className="text-muted-foreground">→</span>
+                                  <span className="px-2 py-0.5 rounded bg-primary/10 text-primary">Decrease Bid 5%</span>
+                                </div>
+                              </button>
+
+                              <button className="group bg-card hover:bg-accent/10 border-2 border-border hover:border-primary/40 rounded-lg p-4 text-left transition-all">
+                                <div className="flex items-start justify-between mb-2">
+                                  <h5 className="text-sm font-semibold text-card-foreground group-hover:text-primary transition-colors">No Orders - Decrease</h5>
+                                  <Badge variant="outline" className="text-xs bg-accent/10 text-accent border-accent/30">Common</Badge>
+                                </div>
+                                <p className="text-xs text-muted-foreground mb-3">
+                                  Reduce spending on targets with high spend but no conversions
+                                </p>
+                                <div className="flex items-center gap-2 text-xs">
+                                  <span className="px-2 py-0.5 rounded bg-muted text-muted-foreground">Spend &gt; $50 + 0 Orders</span>
+                                  <span className="text-muted-foreground">→</span>
+                                  <span className="px-2 py-0.5 rounded bg-primary/10 text-primary">Decrease Bid 20%</span>
+                                </div>
+                              </button>
+
+                              <button className="group bg-card hover:bg-accent/10 border-2 border-border hover:border-primary/40 rounded-lg p-4 text-left transition-all">
+                                <div className="flex items-start justify-between mb-2">
+                                  <h5 className="text-sm font-semibold text-card-foreground group-hover:text-primary transition-colors">Low ROAS Alert</h5>
+                                  <Badge variant="outline" className="text-xs bg-muted text-muted-foreground border-border">Recommended</Badge>
+                                </div>
+                                <p className="text-xs text-muted-foreground mb-3">
+                                  Pause campaigns when return on ad spend falls below threshold
+                                </p>
+                                <div className="flex items-center gap-2 text-xs">
+                                  <span className="px-2 py-0.5 rounded bg-muted text-muted-foreground">ROAS &lt; 1.5</span>
+                                  <span className="text-muted-foreground">→</span>
+                                  <span className="px-2 py-0.5 rounded bg-primary/10 text-primary">Pause Campaign</span>
+                                </div>
+                              </button>
+
+                              <button className="group bg-card hover:bg-accent/10 border-2 border-border hover:border-primary/40 rounded-lg p-4 text-left transition-all">
+                                <div className="flex items-start justify-between mb-2">
+                                  <h5 className="text-sm font-semibold text-card-foreground group-hover:text-primary transition-colors">High Performance Boost</h5>
+                                  <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/30">Growth</Badge>
+                                </div>
+                                <p className="text-xs text-muted-foreground mb-3">
+                                  Increase bids on high-converting targets to capture more sales
+                                </p>
+                                <div className="flex items-center gap-2 text-xs">
+                                  <span className="px-2 py-0.5 rounded bg-muted text-muted-foreground">ACoS &lt; 20% + Orders &gt; 5</span>
+                                  <span className="text-muted-foreground">→</span>
+                                  <span className="px-2 py-0.5 rounded bg-primary/10 text-primary">Increase Bid 10%</span>
+                                </div>
+                              </button>
+
+                              <button className="group bg-card hover:bg-accent/10 border-2 border-border hover:border-primary/40 rounded-lg p-4 text-left transition-all">
+                                <div className="flex items-start justify-between mb-2">
+                                  <h5 className="text-sm font-semibold text-card-foreground group-hover:text-primary transition-colors">Revive Stale Targets</h5>
+                                  <Badge variant="outline" className="text-xs bg-muted text-muted-foreground border-border">Recovery</Badge>
+                                </div>
+                                <p className="text-xs text-muted-foreground mb-3">
+                                  Boost bids for targets with good history but recent low activity
+                                </p>
+                                <div className="flex items-center gap-2 text-xs">
+                                  <span className="px-2 py-0.5 rounded bg-muted text-muted-foreground">Clicks &lt; 10 (14d)</span>
+                                  <span className="text-muted-foreground">→</span>
+                                  <span className="px-2 py-0.5 rounded bg-primary/10 text-primary">Increase Bid 10%</span>
+                                </div>
+                              </button>
+
+                              <button className="group bg-card hover:bg-accent/10 border-2 border-border hover:border-primary/40 rounded-lg p-4 text-left transition-all">
+                                <div className="flex items-start justify-between mb-2">
+                                  <h5 className="text-sm font-semibold text-card-foreground group-hover:text-primary transition-colors">Budget Overspend Guard</h5>
+                                  <Badge variant="outline" className="text-xs bg-destructive/10 text-destructive border-destructive/30">Protection</Badge>
+                                </div>
+                                <p className="text-xs text-muted-foreground mb-3">
+                                  Protect budgets by reducing bids when spend exceeds daily limits
+                                </p>
+                                <div className="flex items-center gap-2 text-xs">
+                                  <span className="px-2 py-0.5 rounded bg-muted text-muted-foreground">Spend &gt; Daily Budget</span>
+                                  <span className="text-muted-foreground">→</span>
+                                  <span className="px-2 py-0.5 rounded bg-primary/10 text-primary">Decrease Bid 10%</span>
+                                </div>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-4 pl-11">
+                          <div className="bg-card rounded-lg p-6 border-2 border-border shadow-sm">
+                            <div className="flex items-center justify-between mb-5">
+                              <span className="text-sm font-medium text-card-foreground">Condition 1</span>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
+                              >
+                                <X size={16} weight="regular" />
+                              </Button>
+                            </div>
+                            <div className="grid grid-cols-1 gap-5">
+                              <div className="grid grid-cols-5 gap-4">
+                                <div>
+                                  <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Metric</Label>
+                                  <Select defaultValue="">
+                                    <SelectTrigger className="bg-input border-border text-card-foreground text-sm h-11 w-full">
+                                      <SelectValue placeholder="Select metric..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="acos">ACoS</SelectItem>
+                                      <SelectItem value="roas">ROAS</SelectItem>
+                                      <SelectItem value="ctr">CTR</SelectItem>
+                                      <SelectItem value="impressions">Impressions</SelectItem>
+                                      <SelectItem value="clicks">Clicks</SelectItem>
+                                      <SelectItem value="conversions">Conversions</SelectItem>
+                                      <SelectItem value="spend">Spend</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div>
+                                  <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Time Period</Label>
+                                  <Select defaultValue="">
+                                    <SelectTrigger className="bg-input border-border text-card-foreground text-sm h-11 w-full">
+                                      <SelectValue placeholder="Select period..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="last-7-days">Last 7 Days</SelectItem>
+                                      <SelectItem value="last-14-days">Last 14 Days</SelectItem>
+                                      <SelectItem value="last-30-days">Last 30 Days</SelectItem>
+                                      <SelectItem value="last-60-days">Last 60 Days</SelectItem>
+                                      <SelectItem value="last-90-days">Last 90 Days</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div>
+                                  <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Comparison</Label>
+                                  <Select defaultValue="">
+                                    <SelectTrigger className="bg-input border-border text-card-foreground text-sm h-11 w-full">
+                                      <SelectValue placeholder="Select..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="current-period">Current Period</SelectItem>
+                                      <SelectItem value="previous-period">Previous Period</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div>
+                                  <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Operator</Label>
+                                  <Select defaultValue="">
+                                    <SelectTrigger className="bg-input border-border text-card-foreground text-sm h-11 w-full">
+                                      <SelectValue placeholder="Select..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="greater-than">Greater Than (&gt;)</SelectItem>
+                                      <SelectItem value="less-than">Less Than (&lt;)</SelectItem>
+                                      <SelectItem value="equal-to">Equal To (=)</SelectItem>
+                                      <SelectItem value="greater-equal">Greater or Equal (≥)</SelectItem>
+                                      <SelectItem value="less-equal">Less or Equal (≤)</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div>
+                                  <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Target Value</Label>
+                                  <Input 
+                                    className="bg-input border-border text-card-foreground text-sm h-11 w-full"
+                                    placeholder="e.g., 25, 3.5, 100"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <Button 
+                            variant="outline"
+                            className="w-full border-dashed border-2 text-primary hover:text-primary hover:bg-primary/5 h-12"
+                          >
+                            <Plus size={18} weight="regular" className="mr-2" />
+                            Add Another Condition
+                          </Button>
+
+                          <div className="bg-accent/5 rounded-lg p-5 border border-accent/20 mt-6">
+                            <div className="flex items-start gap-3">
+                              <Info size={18} weight="regular" className="text-accent flex-shrink-0 mt-0.5" />
+                              <div className="flex-1">
+                                <p className="text-sm text-card-foreground font-medium mb-3">Cooldown Period</p>
+                                <div className="flex items-center gap-3 flex-wrap">
+                                  <span className="text-sm text-muted-foreground">
+                                    After applying this optimization, wait
+                                  </span>
+                                  <Input 
+                                    type="number"
+                                    defaultValue="3"
+                                    min="1"
+                                    className="bg-input border-border text-card-foreground w-24 h-10 text-sm"
+                                  />
+                                  <span className="text-sm text-muted-foreground">
+                                    days before running another optimization
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-muted/20 rounded-lg p-8 border border-border">
+                        <div className="flex items-start gap-3 mb-6">
+                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-semibold text-sm flex-shrink-0">
+                            3
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="text-base font-semibold text-card-foreground mb-1">Choose Action</h3>
+                            <p className="text-sm text-muted-foreground">
+                              Select what action should be taken when the conditions above are met.
+                            </p>
+                          </div>
+                        </div>
+                        <div className="pl-11">
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div>
+                              <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Action Type</Label>
+                              <Select defaultValue="">
+                                <SelectTrigger className="bg-input border-border text-card-foreground font-medium h-11 w-full">
+                                  <SelectValue placeholder="Select action to perform..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="increase-bid">Increase Bid</SelectItem>
+                                  <SelectItem value="decrease-bid">Decrease Bid</SelectItem>
+                                  <SelectItem value="increase-budget">Increase Budget</SelectItem>
+                                  <SelectItem value="decrease-budget">Decrease Budget</SelectItem>
+                                  <SelectItem value="pause-campaign">Pause Campaign</SelectItem>
+                                  <SelectItem value="enable-campaign">Enable Campaign</SelectItem>
+                                  <SelectItem value="send-notification">Send Notification</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Adjustment Amount</Label>
+                              <div className="flex gap-3">
+                                <Input 
+                                  type="number"
+                                  placeholder="e.g., 10"
+                                  className="bg-input border-border text-card-foreground h-11 text-sm flex-1"
+                                />
+                                <Select defaultValue="percentage">
+                                  <SelectTrigger className="bg-input border-border text-card-foreground h-11 w-32">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="percentage">%</SelectItem>
+                                    <SelectItem value="fixed">Fixed</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-between items-center gap-4 pt-4 border-t border-border">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Info size={16} weight="regular" />
+                          <span>This optimization will run automatically once activated</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Button 
+                            variant="ghost"
+                            onClick={handleBackToSettings}
+                            className="text-muted-foreground hover:text-card-foreground h-10 px-5"
+                          >
+                            Cancel
+                          </Button>
+                          <Button 
+                            onClick={() => {
+                              toast.success('Custom optimization saved successfully')
+                              setShowOptimizationBuilder(false)
+                              setCurrentOptimizationSection(null)
+                            }}
+                            className="bg-primary hover:bg-accent text-primary-foreground shadow-lg shadow-primary/20 h-10 px-6 font-semibold"
+                          >
+                            Save Optimization
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </main>
             </TabsContent>
 
@@ -955,7 +1315,8 @@ function App() {
               <main className="flex-grow p-6 lg:p-8 overflow-auto">
                 <CampaignCreation onCreateOptimization={(section) => {
                   setCurrentOptimizationSection(section)
-                  setDailyBiddingDialogOpen(true)
+                  setShowOptimizationBuilder(true)
+                  setActiveTab('store-settings')
                 }} />
               </main>
             </TabsContent>
@@ -968,352 +1329,6 @@ function App() {
           </Tabs>
         </header>
       </div>
-
-      <Dialog open={dailyBiddingDialogOpen} onOpenChange={setDailyBiddingDialogOpen}>
-        <DialogContent className="max-w-[95vw] w-[2400px] max-h-[90vh] overflow-hidden bg-card flex flex-col">
-          <DialogHeader className="pb-4 border-b border-border">
-            <DialogTitle className="text-xl font-semibold text-card-foreground">Custom Optimization Builder</DialogTitle>
-            <p className="text-sm text-muted-foreground mt-2">
-              Create automated rules to optimize your campaign performance based on custom conditions and actions.
-            </p>
-          </DialogHeader>
-          
-          <div className="flex-1 overflow-y-auto pr-2 -mr-2">
-            <div className="space-y-6 py-6">
-              <div className="bg-muted/20 rounded-lg p-8 border border-border">
-                <div className="flex items-start gap-3 mb-6">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-semibold text-sm flex-shrink-0">
-                    1
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-base font-semibold text-card-foreground mb-1">Name Your Optimization</h3>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Give this optimization a descriptive name to easily identify it later.
-                    </p>
-                    <Input 
-                      defaultValue="Daily Bid"
-                      className="bg-input border-border text-card-foreground max-w-2xl h-11 text-sm"
-                      placeholder="e.g., Daily Bid Adjustment, Weekend Boost, etc."
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-muted/20 rounded-lg p-8 border border-border">
-                <div className="flex items-start gap-3 mb-6">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-semibold text-sm flex-shrink-0">
-                    2
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-base font-semibold text-card-foreground mb-1">Define Conditions</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Set the performance criteria that will trigger this optimization. You can add multiple conditions.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="pl-11 mb-6">
-                  <div className="bg-gradient-to-br from-primary/5 to-accent/5 rounded-lg p-5 border border-primary/20">
-                    <div className="flex items-center gap-2 mb-4">
-                      <Lightbulb size={18} weight="fill" className="text-primary" />
-                      <h4 className="text-sm font-semibold text-card-foreground">Quick Start Templates</h4>
-                    </div>
-                    <p className="text-xs text-muted-foreground mb-4">
-                      Select a preset template to quickly configure common optimization scenarios. You can customize after applying.
-                    </p>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                      <button className="group bg-card hover:bg-accent/10 border-2 border-border hover:border-primary/40 rounded-lg p-4 text-left transition-all">
-                        <div className="flex items-start justify-between mb-2">
-                          <h5 className="text-sm font-semibold text-card-foreground group-hover:text-primary transition-colors">High ACoS Reduction</h5>
-                          <Badge variant="outline" className="text-xs bg-destructive/10 text-destructive border-destructive/30">Popular</Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground mb-3">
-                          Automatically decrease bids when ACoS exceeds your target threshold
-                        </p>
-                        <div className="flex items-center gap-2 text-xs">
-                          <span className="px-2 py-0.5 rounded bg-muted text-muted-foreground">ACoS &gt; Target</span>
-                          <span className="text-muted-foreground">→</span>
-                          <span className="px-2 py-0.5 rounded bg-primary/10 text-primary">Decrease Bid 5%</span>
-                        </div>
-                      </button>
-
-                      <button className="group bg-card hover:bg-accent/10 border-2 border-border hover:border-primary/40 rounded-lg p-4 text-left transition-all">
-                        <div className="flex items-start justify-between mb-2">
-                          <h5 className="text-sm font-semibold text-card-foreground group-hover:text-primary transition-colors">No Orders - Decrease</h5>
-                          <Badge variant="outline" className="text-xs bg-accent/10 text-accent border-accent/30">Common</Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground mb-3">
-                          Reduce spending on targets with high spend but no conversions
-                        </p>
-                        <div className="flex items-center gap-2 text-xs">
-                          <span className="px-2 py-0.5 rounded bg-muted text-muted-foreground">Spend &gt; $50 + 0 Orders</span>
-                          <span className="text-muted-foreground">→</span>
-                          <span className="px-2 py-0.5 rounded bg-primary/10 text-primary">Decrease Bid 20%</span>
-                        </div>
-                      </button>
-
-                      <button className="group bg-card hover:bg-accent/10 border-2 border-border hover:border-primary/40 rounded-lg p-4 text-left transition-all">
-                        <div className="flex items-start justify-between mb-2">
-                          <h5 className="text-sm font-semibold text-card-foreground group-hover:text-primary transition-colors">Low ROAS Alert</h5>
-                          <Badge variant="outline" className="text-xs bg-muted text-muted-foreground border-border">Recommended</Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground mb-3">
-                          Pause campaigns when return on ad spend falls below threshold
-                        </p>
-                        <div className="flex items-center gap-2 text-xs">
-                          <span className="px-2 py-0.5 rounded bg-muted text-muted-foreground">ROAS &lt; 1.5</span>
-                          <span className="text-muted-foreground">→</span>
-                          <span className="px-2 py-0.5 rounded bg-primary/10 text-primary">Pause Campaign</span>
-                        </div>
-                      </button>
-
-                      <button className="group bg-card hover:bg-accent/10 border-2 border-border hover:border-primary/40 rounded-lg p-4 text-left transition-all">
-                        <div className="flex items-start justify-between mb-2">
-                          <h5 className="text-sm font-semibold text-card-foreground group-hover:text-primary transition-colors">High Performance Boost</h5>
-                          <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/30">Growth</Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground mb-3">
-                          Increase bids on high-converting targets to capture more sales
-                        </p>
-                        <div className="flex items-center gap-2 text-xs">
-                          <span className="px-2 py-0.5 rounded bg-muted text-muted-foreground">ACoS &lt; 20% + Orders &gt; 5</span>
-                          <span className="text-muted-foreground">→</span>
-                          <span className="px-2 py-0.5 rounded bg-primary/10 text-primary">Increase Bid 10%</span>
-                        </div>
-                      </button>
-
-                      <button className="group bg-card hover:bg-accent/10 border-2 border-border hover:border-primary/40 rounded-lg p-4 text-left transition-all">
-                        <div className="flex items-start justify-between mb-2">
-                          <h5 className="text-sm font-semibold text-card-foreground group-hover:text-primary transition-colors">Revive Stale Targets</h5>
-                          <Badge variant="outline" className="text-xs bg-muted text-muted-foreground border-border">Recovery</Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground mb-3">
-                          Boost bids for targets with good history but recent low activity
-                        </p>
-                        <div className="flex items-center gap-2 text-xs">
-                          <span className="px-2 py-0.5 rounded bg-muted text-muted-foreground">Clicks &lt; 10 (14d)</span>
-                          <span className="text-muted-foreground">→</span>
-                          <span className="px-2 py-0.5 rounded bg-primary/10 text-primary">Increase Bid 10%</span>
-                        </div>
-                      </button>
-
-                      <button className="group bg-card hover:bg-accent/10 border-2 border-border hover:border-primary/40 rounded-lg p-4 text-left transition-all">
-                        <div className="flex items-start justify-between mb-2">
-                          <h5 className="text-sm font-semibold text-card-foreground group-hover:text-primary transition-colors">Budget Overspend Guard</h5>
-                          <Badge variant="outline" className="text-xs bg-destructive/10 text-destructive border-destructive/30">Protection</Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground mb-3">
-                          Protect budgets by reducing bids when spend exceeds daily limits
-                        </p>
-                        <div className="flex items-center gap-2 text-xs">
-                          <span className="px-2 py-0.5 rounded bg-muted text-muted-foreground">Spend &gt; Daily Budget</span>
-                          <span className="text-muted-foreground">→</span>
-                          <span className="px-2 py-0.5 rounded bg-primary/10 text-primary">Decrease Bid 10%</span>
-                        </div>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-4 pl-11">
-                  <div className="bg-card rounded-lg p-6 border-2 border-border shadow-sm">
-                    <div className="flex items-center justify-between mb-5">
-                      <span className="text-sm font-medium text-card-foreground">Condition 1</span>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
-                      >
-                        <X size={16} weight="regular" />
-                      </Button>
-                    </div>
-                    <div className="grid grid-cols-1 gap-5">
-                      <div className="grid grid-cols-5 gap-4">
-                        <div>
-                          <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Metric</Label>
-                          <Select defaultValue="">
-                            <SelectTrigger className="bg-input border-border text-card-foreground text-sm h-11 w-full">
-                              <SelectValue placeholder="Select metric..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="acos">ACoS</SelectItem>
-                              <SelectItem value="roas">ROAS</SelectItem>
-                              <SelectItem value="ctr">CTR</SelectItem>
-                              <SelectItem value="impressions">Impressions</SelectItem>
-                              <SelectItem value="clicks">Clicks</SelectItem>
-                              <SelectItem value="conversions">Conversions</SelectItem>
-                              <SelectItem value="spend">Spend</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div>
-                          <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Time Period</Label>
-                          <Select defaultValue="">
-                            <SelectTrigger className="bg-input border-border text-card-foreground text-sm h-11 w-full">
-                              <SelectValue placeholder="Select period..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="last-7-days">Last 7 Days</SelectItem>
-                              <SelectItem value="last-14-days">Last 14 Days</SelectItem>
-                              <SelectItem value="last-30-days">Last 30 Days</SelectItem>
-                              <SelectItem value="last-60-days">Last 60 Days</SelectItem>
-                              <SelectItem value="last-90-days">Last 90 Days</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div>
-                          <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Comparison</Label>
-                          <Select defaultValue="">
-                            <SelectTrigger className="bg-input border-border text-card-foreground text-sm h-11 w-full">
-                              <SelectValue placeholder="Select..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="current-period">Current Period</SelectItem>
-                              <SelectItem value="previous-period">Previous Period</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div>
-                          <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Operator</Label>
-                          <Select defaultValue="">
-                            <SelectTrigger className="bg-input border-border text-card-foreground text-sm h-11 w-full">
-                              <SelectValue placeholder="Select..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="greater-than">Greater Than (&gt;)</SelectItem>
-                              <SelectItem value="less-than">Less Than (&lt;)</SelectItem>
-                              <SelectItem value="equal-to">Equal To (=)</SelectItem>
-                              <SelectItem value="greater-equal">Greater or Equal (≥)</SelectItem>
-                              <SelectItem value="less-equal">Less or Equal (≤)</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div>
-                          <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Target Value</Label>
-                          <Input 
-                            className="bg-input border-border text-card-foreground text-sm h-11 w-full"
-                            placeholder="e.g., 25, 3.5, 100"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <Button 
-                    variant="outline"
-                    className="w-full border-dashed border-2 text-primary hover:text-primary hover:bg-primary/5 h-12"
-                  >
-                    <Plus size={18} weight="regular" className="mr-2" />
-                    Add Another Condition
-                  </Button>
-
-                  <div className="bg-accent/5 rounded-lg p-5 border border-accent/20 mt-6">
-                    <div className="flex items-start gap-3">
-                      <Info size={18} weight="regular" className="text-accent flex-shrink-0 mt-0.5" />
-                      <div className="flex-1">
-                        <p className="text-sm text-card-foreground font-medium mb-3">Cooldown Period</p>
-                        <div className="flex items-center gap-3 flex-wrap">
-                          <span className="text-sm text-muted-foreground">
-                            After applying this optimization, wait
-                          </span>
-                          <Input 
-                            type="number"
-                            defaultValue="3"
-                            min="1"
-                            className="bg-input border-border text-card-foreground w-24 h-10 text-sm"
-                          />
-                          <span className="text-sm text-muted-foreground">
-                            days before running another optimization
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-muted/20 rounded-lg p-8 border border-border">
-                <div className="flex items-start gap-3 mb-6">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-semibold text-sm flex-shrink-0">
-                    3
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-base font-semibold text-card-foreground mb-1">Choose Action</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Select what action should be taken when the conditions above are met.
-                    </p>
-                  </div>
-                </div>
-                <div className="pl-11">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div>
-                      <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Action Type</Label>
-                      <Select defaultValue="">
-                        <SelectTrigger className="bg-input border-border text-card-foreground font-medium h-11 w-full">
-                          <SelectValue placeholder="Select action to perform..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="increase-bid">Increase Bid</SelectItem>
-                          <SelectItem value="decrease-bid">Decrease Bid</SelectItem>
-                          <SelectItem value="increase-budget">Increase Budget</SelectItem>
-                          <SelectItem value="decrease-budget">Decrease Budget</SelectItem>
-                          <SelectItem value="pause-campaign">Pause Campaign</SelectItem>
-                          <SelectItem value="enable-campaign">Enable Campaign</SelectItem>
-                          <SelectItem value="send-notification">Send Notification</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Adjustment Amount</Label>
-                      <div className="flex gap-3">
-                        <Input 
-                          type="number"
-                          placeholder="e.g., 10"
-                          className="bg-input border-border text-card-foreground h-11 text-sm flex-1"
-                        />
-                        <Select defaultValue="percentage">
-                          <SelectTrigger className="bg-input border-border text-card-foreground h-11 w-32">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="percentage">%</SelectItem>
-                            <SelectItem value="fixed">Fixed</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex justify-between items-center gap-4 pt-4 border-t border-border flex-shrink-0">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Info size={16} weight="regular" />
-              <span>This optimization will run automatically once activated</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Button 
-                variant="ghost"
-                onClick={() => setDailyBiddingDialogOpen(false)}
-                className="text-muted-foreground hover:text-card-foreground h-10 px-5"
-              >
-                Cancel
-              </Button>
-              <Button 
-                onClick={() => {
-                  toast.success('Custom optimization saved successfully')
-                  setDailyBiddingDialogOpen(false)
-                }}
-                className="bg-primary hover:bg-accent text-primary-foreground shadow-lg shadow-primary/20 h-10 px-6 font-semibold"
-              >
-                Save Optimization
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </>
   )
 }
