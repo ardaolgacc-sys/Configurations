@@ -1,312 +1,619 @@
 import { useState } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { Info, ArrowsClockwise, Trash, FloppyDisk } from '@phosphor-icons/react'
+import { Separator } from '@/components/ui/separator'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { toast } from 'sonner'
+import { House, Info, Trash, CursorClick, Plus, X, CaretDown } from '@phosphor-icons/react'
+import { AIDecisions } from '@/components/AIDecisions'
 
-type FocusType = 'growth-focused' | 'lean-growth' | 'balanced' | 'lean-profit' | 'profit-focused'
+type FocusStrategy = 'growth-focused' | 'lean-growth' | 'balanced' | 'lean-profit' | 'profit-focused'
 type TargetType = 'acos' | 'tacos'
 
-interface ConfigState {
-  focus: FocusType
+interface StoreSettings {
+  focusStrategy: FocusStrategy
+  targetType: TargetType
   minBid: string
   maxBid: string
-  targetType: TargetType
-  targetPercentage: string
+  targetAcos: string
   dailyBidding: string
-  negation: string
+  dayparting: string
   campaignCreation: string
-  adStatus: string
+  negating: string
 }
 
-const defaultConfig: ConfigState = {
-  focus: 'lean-growth',
-  minBid: '$0.16',
-  maxBid: '$6.20',
+const defaultSettings: StoreSettings = {
+  focusStrategy: 'lean-growth',
   targetType: 'acos',
-  targetPercentage: '25.00%',
-  dailyBidding: 'optimized-by-eva-ai',
-  negation: 'negating-medium-tolerance',
-  campaignCreation: 'dont-optimize',
-  adStatus: 'performance-inventory-aware'
+  minBid: '$0.08',
+  maxBid: '$3.00',
+  targetAcos: '35.00%',
+  dailyBidding: 'Smart Bid Optimizer',
+  dayparting: "Don't Optimize",
+  campaignCreation: "Don't Optimize",
+  negating: 'Negation'
 }
 
 function App() {
-  const [config, setConfig] = useKV<ConfigState>('campaign-config', defaultConfig)
+  const [settings, setSettings] = useKV<StoreSettings>('store-settings', defaultSettings)
   const [activeTab, setActiveTab] = useState('store-settings')
+  const [dailyBiddingDialogOpen, setDailyBiddingDialogOpen] = useState(false)
+  const [dailyBiddingOpen, setDailyBiddingOpen] = useState(false)
+  const [daypartingOpen, setDaypartingOpen] = useState(false)
+  const [campaignCreationOpen, setCampaignCreationOpen] = useState(false)
+  const [negatingOpen, setNegatingOpen] = useState(false)
 
-  const currentConfig = config || defaultConfig
-
-  const handleClearInputs = () => {
-    setConfig(defaultConfig)
-    toast.success('Inputs cleared to default values')
+  if (!settings) {
+    return null
   }
 
-  const handleSaveGoals = () => {
-    toast.success('Goals saved successfully')
+  const updateSetting = <K extends keyof StoreSettings>(key: K, value: StoreSettings[K]) => {
+    setSettings((current) => ({ ...current!, [key]: value }))
+    
+    if (key === 'dailyBidding' && value === 'Custom Optimization') {
+      setDailyBiddingDialogOpen(true)
+    }
   }
 
-  const InfoTooltip = ({ content }: { content: string }) => (
-    <TooltipProvider delayDuration={0}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button type="button" className="inline-flex text-muted-foreground hover:text-foreground transition-colors">
-            <Info size={16} weight="fill" />
-          </button>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p className="text-sm max-w-xs">{content}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  )
+  const handleClear = () => {
+    setSettings(defaultSettings)
+    toast.success('Inputs cleared to defaults')
+  }
+
+  const handleSave = () => {
+    toast.success('Settings saved successfully')
+  }
+
+  const applyRecommendation = (field: 'minBid' | 'maxBid' | 'targetAcos', value: string) => {
+    updateSetting(field, value)
+    toast.info(`Applied recommendation: ${value}`)
+  }
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-6">
-      <div className="max-w-7xl">
-        <div className="flex items-center gap-3 mb-6">
-          <h1 className="text-2xl font-semibold">Configurations</h1>
-          <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/20 text-primary text-xs font-medium">
-            0
+    <>
+      <div className="flex flex-col h-screen bg-background">
+        <header className="pt-6 px-8 pb-0">
+          <div className="flex items-center gap-4 mb-6">
+            <h1 className="text-2xl font-semibold text-card-foreground">Configurations</h1>
+            <div className="h-6 w-px bg-border"></div>
+            <button className="text-muted-foreground hover:text-primary transition-colors">
+              <House size={20} weight="regular" />
+            </button>
           </div>
-        </div>
+          
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="w-full justify-start bg-transparent border-b border-border rounded-none h-auto p-0 gap-8">
+              <TabsTrigger 
+                value="store-settings"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary bg-transparent px-1 pb-3 text-sm font-medium text-muted-foreground data-[state=active]:shadow-none"
+              >
+                Store Settings
+              </TabsTrigger>
+              <TabsTrigger 
+                value="ai-decisions"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary bg-transparent px-1 pb-3 text-sm font-medium text-muted-foreground data-[state=active]:shadow-none"
+              >
+                AI Decisions
+              </TabsTrigger>
+            </TabsList>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-          <TabsList className="bg-transparent border-b border-border rounded-none w-full justify-start p-0 h-auto">
-            <TabsTrigger 
-              value="store-settings"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent bg-transparent px-4 py-3 text-sm"
-            >
-              Store Settings
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-
-        <div className="grid gap-6">
-          <Card className="bg-card border-border">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-2 mb-6">
-                <h2 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">FOCUS</h2>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-8">
-                <div>
-                  <RadioGroup 
-                    value={currentConfig.focus} 
-                    onValueChange={(value) => setConfig((current = defaultConfig) => ({ ...current, focus: value as FocusType }))}
-                    className="gap-3"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="growth-focused" id="growth-focused" />
-                      <Label htmlFor="growth-focused" className="cursor-pointer font-normal">Growth Focused</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="lean-growth" id="lean-growth" />
-                      <Label htmlFor="lean-growth" className="cursor-pointer font-normal">Lean Growth</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="balanced" id="balanced" />
-                      <Label htmlFor="balanced" className="cursor-pointer font-normal">Balanced Approach</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="lean-profit" id="lean-profit" />
-                      <Label htmlFor="lean-profit" className="cursor-pointer font-normal">Lean Profit</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="profit-focused" id="profit-focused" />
-                      <Label htmlFor="profit-focused" className="cursor-pointer font-normal">Profit Focused</Label>
-                    </div>
-                  </RadioGroup>
+            <TabsContent value="store-settings" className="mt-0">
+              <main className="flex-grow p-6 lg:p-8 overflow-auto">
+                <div className="mb-6">
+                  <h2 className="text-lg font-semibold text-card-foreground mb-2">Configure Your Store Settings</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Define your advertising strategy, set bidding parameters, and configure automated optimizations to maximize your campaign performance.
+                  </p>
                 </div>
 
-                <div className="grid gap-6">
-                  <div className="grid gap-4">
-                    <div className="grid gap-2">
-                      <div className="flex items-center gap-2">
-                        <Label className="text-sm">Min Bid</Label>
-                        <InfoTooltip content="Minimum bid amount for your campaigns" />
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                  <div className="lg:col-span-4 flex flex-col gap-6 bg-card rounded-lg shadow-sm p-6 border border-border">
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <h3 className="text-sm font-semibold text-card-foreground mb-1">Step 1: Choose Your Focus</h3>
+                          <p className="text-xs text-muted-foreground">Select your primary business objective</p>
+                        </div>
                       </div>
-                      <div className="text-lg font-medium">{currentConfig.minBid}</div>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>Recommended: $0.11</span>
-                        <ArrowsClockwise size={14} />
+                      <div className="bg-muted rounded-md p-4 space-y-3">
+                        <RadioGroup value={settings.focusStrategy} onValueChange={(v) => updateSetting('focusStrategy', v as FocusStrategy)}>
+                          <div className="space-y-3">
+                            <label className="flex items-center space-x-3 cursor-pointer group">
+                              <RadioGroupItem value="growth-focused" id="growth-focused" className="h-4 w-4 text-primary border-muted-foreground" />
+                              <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">Growth Focused</span>
+                            </label>
+                            <label className={`flex items-center space-x-3 cursor-pointer group p-2 -mx-2 rounded ${settings.focusStrategy === 'lean-growth' ? 'bg-primary/10 border border-primary/30' : ''}`}>
+                              <RadioGroupItem value="lean-growth" id="lean-growth" className="h-4 w-4 text-primary border-muted-foreground" />
+                              <span className={`text-sm ${settings.focusStrategy === 'lean-growth' ? 'font-bold text-card-foreground' : 'font-medium text-foreground group-hover:text-primary transition-colors'}`}>Lean Growth</span>
+                            </label>
+                            <label className="flex items-center space-x-3 cursor-pointer group">
+                              <RadioGroupItem value="balanced" id="balanced" className="h-4 w-4 text-primary border-muted-foreground" />
+                              <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">Balanced Approach</span>
+                            </label>
+                            <label className="flex items-center space-x-3 cursor-pointer group">
+                              <RadioGroupItem value="lean-profit" id="lean-profit" className="h-4 w-4 text-primary border-muted-foreground" />
+                              <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">Lean Profit</span>
+                            </label>
+                            <label className="flex items-center space-x-3 cursor-pointer group">
+                              <RadioGroupItem value="profit-focused" id="profit-focused" className="h-4 w-4 text-primary border-muted-foreground" />
+                              <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">Profit Focused</span>
+                            </label>
+                          </div>
+                        </RadioGroup>
                       </div>
                     </div>
 
-                    <div className="grid gap-2">
-                      <div className="flex items-center gap-2">
-                        <Label className="text-sm">Max Bid</Label>
-                        <InfoTooltip content="Maximum bid amount for your campaigns" />
+                    <div>
+                      <div className="mb-3">
+                        <h3 className="text-sm font-semibold text-card-foreground mb-1">Step 2: Set Your Target Metric</h3>
+                        <p className="text-xs text-muted-foreground">Choose how to measure advertising efficiency</p>
                       </div>
-                      <div className="text-lg font-medium">{currentConfig.maxBid}</div>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>Recommended: $5.00</span>
-                        <ArrowsClockwise size={14} />
+                      <div className="flex items-center gap-1 mb-2">
+                        <Label className="text-sm font-medium text-card-foreground">Target Type</Label>
+                        <Info size={14} weight="regular" className="text-muted-foreground cursor-help" />
                       </div>
-                    </div>
-                  </div>
-
-                  <div className="grid gap-4">
-                    <div className="flex items-center gap-2">
-                      <Label className="text-sm">Target Type</Label>
-                      <InfoTooltip content="Choose between Advertising Cost of Sales or Total Advertising Cost of Sales" />
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <RadioGroup 
-                        value={currentConfig.targetType} 
-                        onValueChange={(value) => setConfig((current = defaultConfig) => ({ ...current, targetType: value as TargetType }))}
-                        className="flex gap-6"
-                      >
+                      <RadioGroup value={settings.targetType} onValueChange={(v) => updateSetting('targetType', v as TargetType)} className="flex items-center space-x-4 mb-2">
                         <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="acos" id="acos" />
-                          <Label htmlFor="acos" className="cursor-pointer font-normal">ACoS</Label>
+                          <RadioGroupItem value="acos" id="acos" className="h-4 w-4" />
+                          <Label htmlFor="acos" className="text-sm text-foreground cursor-pointer">ACoS</Label>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="tacos" id="tacos" />
-                          <Label htmlFor="tacos" className="cursor-pointer font-normal">TACoS</Label>
+                          <RadioGroupItem value="tacos" id="tacos" className="h-4 w-4" />
+                          <Label htmlFor="tacos" className="text-sm text-foreground cursor-pointer">TACoS</Label>
                         </div>
                       </RadioGroup>
+                      <a href="#" className="text-xs text-muted-foreground hover:text-primary underline decoration-dotted transition-colors">
+                        Breakeven ACoS is 42.42%
+                      </a>
                     </div>
 
-                    <div className="grid gap-2">
-                      <div className="flex items-center gap-2">
-                        <Label className="text-sm">Target ACoS</Label>
-                        <InfoTooltip content="Your target Advertising Cost of Sales percentage" />
+                    <Separator className="bg-border" />
+
+                    <div>
+                      <div className="mb-4">
+                        <h3 className="text-sm font-semibold text-card-foreground mb-1">Step 3: Define Bid Boundaries</h3>
+                        <p className="text-xs text-muted-foreground">Set safe minimum and maximum bid limits</p>
                       </div>
-                      <div className="text-lg font-medium">{currentConfig.targetPercentage}</div>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>Recommended: 20.25%</span>
-                        <ArrowsClockwise size={14} />
+                      <div className="space-y-5">
+                        <div>
+                          <div className="flex items-center gap-1 mb-1.5">
+                            <Label className="text-sm font-medium text-foreground">Min Bid</Label>
+                            <Info size={16} weight="regular" className="text-muted-foreground cursor-help" />
+                          </div>
+                          <Input 
+                            value={settings.minBid}
+                            onChange={(e) => updateSetting('minBid', e.target.value)}
+                            className="bg-input border-border text-card-foreground"
+                          />
+                          <div className="mt-1 flex items-center text-xs text-muted-foreground">
+                            <span>Recommended: <button onClick={() => applyRecommendation('minBid', '$0.11')} className="underline decoration-dotted cursor-pointer hover:text-card-foreground">$0.11</button></span>
+                            <CursorClick size={12} weight="regular" className="ml-1" />
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="flex items-center gap-1 mb-1.5">
+                            <Label className="text-sm font-medium text-foreground">Max Bid</Label>
+                            <Info size={16} weight="regular" className="text-muted-foreground cursor-help" />
+                          </div>
+                          <Input 
+                            value={settings.maxBid}
+                            onChange={(e) => updateSetting('maxBid', e.target.value)}
+                            className="bg-input border-border text-card-foreground"
+                          />
+                          <div className="mt-1 flex items-center text-xs text-muted-foreground">
+                            <span>Recommended: <button onClick={() => applyRecommendation('maxBid', '$5.00')} className="underline decoration-dotted cursor-pointer hover:text-card-foreground">$5.00</button></span>
+                            <CursorClick size={12} weight="regular" className="ml-1" />
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="flex items-center gap-1 mb-1.5">
+                            <Label className="text-sm font-medium text-foreground">Target ACoS</Label>
+                            <Info size={16} weight="regular" className="text-muted-foreground cursor-help" />
+                          </div>
+                          <Input 
+                            value={settings.targetAcos}
+                            onChange={(e) => updateSetting('targetAcos', e.target.value)}
+                            className="bg-input border-border text-card-foreground"
+                          />
+                          <div className="mt-1 flex items-center text-xs text-muted-foreground">
+                            <span>Recommended: <button onClick={() => applyRecommendation('targetAcos', '26.25%')} className="underline decoration-dotted cursor-pointer hover:text-card-foreground">26.25%</button></span>
+                            <CursorClick size={12} weight="regular" className="ml-1" />
+                          </div>
+                        </div>
                       </div>
                     </div>
+                  </div>
 
-                    <div className="text-xs text-muted-foreground">
-                      Breakeven ACoS is 23.75%
+                  <div className="lg:col-span-8 flex flex-col bg-card rounded-lg shadow-sm p-6 border border-border">
+                    <div className="mb-6">
+                      <h3 className="text-sm font-semibold text-card-foreground mb-1">Step 4: Configure Automated Optimizations</h3>
+                      <p className="text-xs text-muted-foreground">Enable AI-powered automation for various campaign aspects. Click any section to expand and configure.</p>
+                    </div>
+                    
+                    <div className="space-y-4 mb-8">
+                      <Collapsible open={dailyBiddingOpen} onOpenChange={setDailyBiddingOpen}>
+                        <div className="border border-border rounded-lg">
+                          <CollapsibleTrigger className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+                            <div className="flex items-center gap-2">
+                              <Label className="text-sm font-medium text-card-foreground cursor-pointer">Daily Bidding</Label>
+                              <Info size={14} weight="regular" className="text-muted-foreground cursor-help" />
+                            </div>
+                            <CaretDown size={20} weight="bold" className={`text-muted-foreground transition-transform ${dailyBiddingOpen ? 'rotate-180' : ''}`} />
+                          </CollapsibleTrigger>
+                          <CollapsibleContent>
+                            <div className="p-4 pt-0">
+                              <Select value={settings.dailyBidding} onValueChange={(v) => updateSetting('dailyBidding', v)}>
+                                <SelectTrigger className="bg-input border-border text-card-foreground font-medium">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Smart Bid Optimizer">Smart Bid Optimizer</SelectItem>
+                                  <SelectItem value="Custom Optimization">Custom Optimization</SelectItem>
+                                  <SelectItem value="Optimized by Eva AI">Optimized by Eva AI</SelectItem>
+                                  <SelectItem value="Don't Optimize">Don't Optimize</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </CollapsibleContent>
+                        </div>
+                      </Collapsible>
+
+                      <Collapsible open={daypartingOpen} onOpenChange={setDaypartingOpen}>
+                        <div className="border border-border rounded-lg">
+                          <CollapsibleTrigger className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+                            <div className="flex items-center gap-2">
+                              <Label className="text-sm font-medium text-card-foreground cursor-pointer">Dayparting</Label>
+                              <Info size={14} weight="regular" className="text-muted-foreground cursor-help" />
+                            </div>
+                            <CaretDown size={20} weight="bold" className={`text-muted-foreground transition-transform ${daypartingOpen ? 'rotate-180' : ''}`} />
+                          </CollapsibleTrigger>
+                          <CollapsibleContent>
+                            <div className="p-4 pt-0">
+                              <Select value={settings.dayparting} onValueChange={(v) => updateSetting('dayparting', v)}>
+                                <SelectTrigger className="bg-input border-border text-card-foreground font-medium">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Don't Optimize">Don't Optimize</SelectItem>
+                                  <SelectItem value="Optimize for Peak Hours">Optimize for Peak Hours</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </CollapsibleContent>
+                        </div>
+                      </Collapsible>
+
+                      <Collapsible open={campaignCreationOpen} onOpenChange={setCampaignCreationOpen}>
+                        <div className="border border-border rounded-lg">
+                          <CollapsibleTrigger className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+                            <div className="flex items-center gap-2">
+                              <Label className="text-sm font-medium text-card-foreground cursor-pointer">Campaign Creation</Label>
+                              <Info size={14} weight="regular" className="text-muted-foreground cursor-help" />
+                            </div>
+                            <CaretDown size={20} weight="bold" className={`text-muted-foreground transition-transform ${campaignCreationOpen ? 'rotate-180' : ''}`} />
+                          </CollapsibleTrigger>
+                          <CollapsibleContent>
+                            <div className="p-4 pt-0">
+                              <Select value={settings.campaignCreation} onValueChange={(v) => updateSetting('campaignCreation', v)}>
+                                <SelectTrigger className="bg-input border-border text-card-foreground font-medium">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Don't Optimize">Don't Optimize</SelectItem>
+                                  <SelectItem value="Auto-Create Campaigns">Auto-Create Campaigns</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </CollapsibleContent>
+                        </div>
+                      </Collapsible>
+
+                      <Collapsible open={negatingOpen} onOpenChange={setNegatingOpen}>
+                        <div className="border border-border rounded-lg">
+                          <CollapsibleTrigger className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+                            <div className="flex items-center gap-2">
+                              <Label className="text-sm font-medium text-card-foreground cursor-pointer">Negation</Label>
+                              <Info size={14} weight="regular" className="text-muted-foreground cursor-help" />
+                            </div>
+                            <CaretDown size={20} weight="bold" className={`text-muted-foreground transition-transform ${negatingOpen ? 'rotate-180' : ''}`} />
+                          </CollapsibleTrigger>
+                          <CollapsibleContent>
+                            <div className="p-4 pt-0">
+                              <Select value={settings.negating} onValueChange={(v) => updateSetting('negating', v)}>
+                                <SelectTrigger className="bg-input border-border text-card-foreground font-medium">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Negation">Negation</SelectItem>
+                                  <SelectItem value="Don't Optimize">Don't Optimize</SelectItem>
+                                  <SelectItem value="Aggressive Negation">Aggressive Negation</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </CollapsibleContent>
+                        </div>
+                      </Collapsible>
+                    </div>
+
+                    <div className="mt-auto flex justify-end items-center gap-4 pt-6 border-t border-border">
+                      <Button 
+                        variant="ghost"
+                        onClick={handleClear}
+                        className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-card-foreground"
+                      >
+                        <Trash size={16} weight="regular" />
+                        Clear Inputs
+                      </Button>
+                      <Button 
+                        onClick={handleSave}
+                        className="bg-primary hover:bg-accent text-primary-foreground text-sm font-semibold shadow-lg shadow-primary/20 transition-all active:scale-95"
+                      >
+                        Save Goals
+                      </Button>
                     </div>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </main>
+            </TabsContent>
 
-          <Card className="bg-card border-border">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-2 mb-6">
-                <h2 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">OPTIMIZATIONS</h2>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="grid gap-2">
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor="daily-bidding" className="text-sm">Daily Bidding</Label>
-                    <InfoTooltip content="Configure daily bidding optimization strategy" />
-                  </div>
-                  <Select 
-                    value={currentConfig.dailyBidding} 
-                    onValueChange={(value) => setConfig((current = defaultConfig) => ({ ...current, dailyBidding: value }))}
-                  >
-                    <SelectTrigger id="daily-bidding" className="bg-secondary border-border">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="optimized-by-eva-ai">Optimized by Eva AI</SelectItem>
-                      <SelectItem value="manual">Manual</SelectItem>
-                      <SelectItem value="disabled">Disabled</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="grid gap-2">
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor="negation" className="text-sm">Negation</Label>
-                    <InfoTooltip content="Configure keyword negation settings" />
-                  </div>
-                  <Select 
-                    value={currentConfig.negation} 
-                    onValueChange={(value) => setConfig((current = defaultConfig) => ({ ...current, negation: value }))}
-                  >
-                    <SelectTrigger id="negation" className="bg-secondary border-border">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="negating-medium-tolerance">Negating with Medium Tolerance</SelectItem>
-                      <SelectItem value="negating-low-tolerance">Negating with Low Tolerance</SelectItem>
-                      <SelectItem value="negating-high-tolerance">Negating with High Tolerance</SelectItem>
-                      <SelectItem value="disabled">Disabled</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="grid gap-2">
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor="ad-status" className="text-sm">Performance & Inventory Guard</Label>
-                    <InfoTooltip content="Monitor and manage ad performance and inventory status" />
-                  </div>
-                  <Select 
-                    value={currentConfig.adStatus} 
-                    onValueChange={(value) => setConfig((current = defaultConfig) => ({ ...current, adStatus: value }))}
-                  >
-                    <SelectTrigger id="ad-status" className="bg-secondary border-border">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="performance-inventory-aware">Performance & Inventory Aware (Excl. Inbounds)</SelectItem>
-                      <SelectItem value="performance-only">Performance Only</SelectItem>
-                      <SelectItem value="inventory-only">Inventory Only</SelectItem>
-                      <SelectItem value="disabled">Disabled</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="grid gap-2">
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor="campaign-creation" className="text-sm">Campaign Creation</Label>
-                    <InfoTooltip content="Configure automatic campaign creation settings" />
-                  </div>
-                  <Select 
-                    value={currentConfig.campaignCreation} 
-                    onValueChange={(value) => setConfig((current = defaultConfig) => ({ ...current, campaignCreation: value }))}
-                  >
-                    <SelectTrigger id="campaign-creation" className="bg-secondary border-border">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="dont-optimize">Don't Optimize</SelectItem>
-                      <SelectItem value="auto-create">Auto Create</SelectItem>
-                      <SelectItem value="suggest-only">Suggest Only</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="flex gap-3 mt-6">
-          <Button 
-            variant="outline" 
-            onClick={handleClearInputs}
-            className="gap-2"
-          >
-            <Trash size={16} />
-            Clear Inputs
-          </Button>
-          <Button 
-            onClick={handleSaveGoals}
-            className="gap-2 bg-accent text-accent-foreground hover:bg-accent/90"
-          >
-            <FloppyDisk size={16} />
-            Save Goals
-          </Button>
-        </div>
+            <TabsContent value="ai-decisions" className="mt-0">
+              <main className="flex-grow p-6 lg:p-8 overflow-hidden">
+                <AIDecisions />
+              </main>
+            </TabsContent>
+          </Tabs>
+        </header>
       </div>
-    </div>
+
+      <Dialog open={dailyBiddingDialogOpen} onOpenChange={setDailyBiddingDialogOpen}>
+        <DialogContent className="max-w-[1400px] max-h-[90vh] overflow-hidden bg-card flex flex-col">
+          <DialogHeader className="pb-4 border-b border-border">
+            <DialogTitle className="text-xl font-semibold text-card-foreground">Custom Optimization Builder</DialogTitle>
+            <p className="text-sm text-muted-foreground mt-2">
+              Create automated rules to optimize your campaign performance based on custom conditions and actions.
+            </p>
+          </DialogHeader>
+          
+          <div className="flex-1 overflow-y-auto pr-2 -mr-2">
+            <div className="space-y-6 py-6">
+              <div className="bg-muted/20 rounded-lg p-6 border border-border">
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-semibold text-sm flex-shrink-0">
+                    1
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-base font-semibold text-card-foreground mb-1">Name Your Optimization</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Give this optimization a descriptive name to easily identify it later.
+                    </p>
+                    <Input 
+                      defaultValue="Daily Bid"
+                      className="bg-input border-border text-card-foreground max-w-lg h-10 text-sm"
+                      placeholder="e.g., Daily Bid Adjustment, Weekend Boost, etc."
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-muted/20 rounded-lg p-6 border border-border">
+                <div className="flex items-start gap-3 mb-6">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-semibold text-sm flex-shrink-0">
+                    2
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-base font-semibold text-card-foreground mb-1">Define Conditions</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Set the performance criteria that will trigger this optimization. You can add multiple conditions.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-4 pl-11">
+                  <div className="bg-card rounded-lg p-5 border-2 border-border shadow-sm">
+                    <div className="flex items-center justify-between mb-5">
+                      <span className="text-sm font-medium text-card-foreground">Condition 1</span>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
+                      >
+                        <X size={16} weight="regular" />
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-10 gap-4 items-end">
+                      <div className="lg:col-span-2">
+                        <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Metric</Label>
+                        <Select defaultValue="">
+                          <SelectTrigger className="bg-input border-border text-card-foreground text-sm h-10">
+                            <SelectValue placeholder="Select metric..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="acos">ACoS</SelectItem>
+                            <SelectItem value="roas">ROAS</SelectItem>
+                            <SelectItem value="ctr">CTR</SelectItem>
+                            <SelectItem value="impressions">Impressions</SelectItem>
+                            <SelectItem value="clicks">Clicks</SelectItem>
+                            <SelectItem value="conversions">Conversions</SelectItem>
+                            <SelectItem value="spend">Spend</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="lg:col-span-2">
+                        <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Time Period</Label>
+                        <Select defaultValue="">
+                          <SelectTrigger className="bg-input border-border text-card-foreground text-sm h-10">
+                            <SelectValue placeholder="Select period..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="last-7-days">Last 7 Days</SelectItem>
+                            <SelectItem value="last-14-days">Last 14 Days</SelectItem>
+                            <SelectItem value="last-30-days">Last 30 Days</SelectItem>
+                            <SelectItem value="last-60-days">Last 60 Days</SelectItem>
+                            <SelectItem value="last-90-days">Last 90 Days</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="lg:col-span-2">
+                        <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Comparison</Label>
+                        <Select defaultValue="">
+                          <SelectTrigger className="bg-input border-border text-card-foreground text-sm h-10">
+                            <SelectValue placeholder="Select..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="current-period">Current Period</SelectItem>
+                            <SelectItem value="previous-period">Previous Period</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="lg:col-span-2">
+                        <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Operator</Label>
+                        <Select defaultValue="">
+                          <SelectTrigger className="bg-input border-border text-card-foreground text-sm h-10">
+                            <SelectValue placeholder="Select..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="greater-than">Greater Than (&gt;)</SelectItem>
+                            <SelectItem value="less-than">Less Than (&lt;)</SelectItem>
+                            <SelectItem value="equal-to">Equal To (=)</SelectItem>
+                            <SelectItem value="greater-equal">Greater or Equal (≥)</SelectItem>
+                            <SelectItem value="less-equal">Less or Equal (≤)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="lg:col-span-2">
+                        <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Target Value</Label>
+                        <Input 
+                          className="bg-input border-border text-card-foreground text-sm h-10"
+                          placeholder="e.g., 25, 3.5, 100"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <Button 
+                    variant="outline"
+                    className="w-full border-dashed border-2 text-primary hover:text-primary hover:bg-primary/5 h-11"
+                  >
+                    <Plus size={18} weight="regular" className="mr-2" />
+                    Add Another Condition
+                  </Button>
+
+                  <div className="bg-accent/5 rounded-lg p-4 border border-accent/20 mt-6">
+                    <div className="flex items-start gap-3">
+                      <Info size={18} weight="regular" className="text-accent flex-shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-sm text-card-foreground font-medium mb-2">Cooldown Period</p>
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <span className="text-sm text-muted-foreground">
+                            After applying this optimization, wait
+                          </span>
+                          <Input 
+                            type="number"
+                            defaultValue="3"
+                            min="1"
+                            className="bg-input border-border text-card-foreground w-20 h-9 text-sm"
+                          />
+                          <span className="text-sm text-muted-foreground">
+                            days before running another optimization
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-muted/20 rounded-lg p-6 border border-border">
+                <div className="flex items-start gap-3 mb-6">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-semibold text-sm flex-shrink-0">
+                    3
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-base font-semibold text-card-foreground mb-1">Choose Action</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Select what action should be taken when the conditions above are met.
+                    </p>
+                  </div>
+                </div>
+                <div className="pl-11">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Action Type</Label>
+                      <Select defaultValue="">
+                        <SelectTrigger className="bg-input border-border text-card-foreground font-medium h-10">
+                          <SelectValue placeholder="Select action to perform..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="increase-bid">Increase Bid</SelectItem>
+                          <SelectItem value="decrease-bid">Decrease Bid</SelectItem>
+                          <SelectItem value="increase-budget">Increase Budget</SelectItem>
+                          <SelectItem value="decrease-budget">Decrease Budget</SelectItem>
+                          <SelectItem value="pause-campaign">Pause Campaign</SelectItem>
+                          <SelectItem value="enable-campaign">Enable Campaign</SelectItem>
+                          <SelectItem value="send-notification">Send Notification</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Adjustment Amount</Label>
+                      <div className="flex gap-2">
+                        <Input 
+                          type="number"
+                          placeholder="e.g., 10"
+                          className="bg-input border-border text-card-foreground h-10 text-sm"
+                        />
+                        <Select defaultValue="percentage">
+                          <SelectTrigger className="bg-input border-border text-card-foreground h-10 w-28">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="percentage">%</SelectItem>
+                            <SelectItem value="fixed">Fixed</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-between items-center gap-4 pt-4 border-t border-border flex-shrink-0">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Info size={16} weight="regular" />
+              <span>This optimization will run automatically once activated</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button 
+                variant="ghost"
+                onClick={() => setDailyBiddingDialogOpen(false)}
+                className="text-muted-foreground hover:text-card-foreground h-10 px-5"
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={() => {
+                  toast.success('Custom optimization saved successfully')
+                  setDailyBiddingDialogOpen(false)
+                }}
+                className="bg-primary hover:bg-accent text-primary-foreground shadow-lg shadow-primary/20 h-10 px-6 font-semibold"
+              >
+                Save Optimization
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
 
