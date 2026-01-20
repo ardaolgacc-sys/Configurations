@@ -970,7 +970,7 @@ function App() {
       </div>
 
       <Dialog open={dailyBiddingDialogOpen} onOpenChange={setDailyBiddingDialogOpen}>
-        <DialogContent className="max-w-[2100px] max-h-[90vh] overflow-hidden bg-card flex flex-col">
+        <DialogContent className="max-w-[95vw] w-[2400px] max-h-[90vh] overflow-hidden bg-card flex flex-col">
           <DialogHeader className="pb-4 border-b border-border">
             <DialogTitle className="text-xl font-semibold text-card-foreground">Custom Optimization Builder</DialogTitle>
             <p className="text-sm text-muted-foreground mt-2">
@@ -980,8 +980,8 @@ function App() {
           
           <div className="flex-1 overflow-y-auto pr-2 -mr-2">
             <div className="space-y-6 py-6">
-              <div className="bg-muted/20 rounded-lg p-6 border border-border">
-                <div className="flex items-start gap-3 mb-4">
+              <div className="bg-muted/20 rounded-lg p-8 border border-border">
+                <div className="flex items-start gap-3 mb-6">
                   <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-semibold text-sm flex-shrink-0">
                     1
                   </div>
@@ -992,14 +992,14 @@ function App() {
                     </p>
                     <Input 
                       defaultValue="Daily Bid"
-                      className="bg-input border-border text-card-foreground max-w-lg h-10 text-sm"
+                      className="bg-input border-border text-card-foreground max-w-2xl h-11 text-sm"
                       placeholder="e.g., Daily Bid Adjustment, Weekend Boost, etc."
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="bg-muted/20 rounded-lg p-6 border border-border">
+              <div className="bg-muted/20 rounded-lg p-8 border border-border">
                 <div className="flex items-start gap-3 mb-6">
                   <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-semibold text-sm flex-shrink-0">
                     2
@@ -1013,7 +1013,7 @@ function App() {
                 </div>
 
                 <div className="space-y-4 pl-11">
-                  <div className="bg-card rounded-lg p-5 border-2 border-border shadow-sm">
+                  <div className="bg-card rounded-lg p-6 border-2 border-border shadow-sm">
                     <div className="flex items-center justify-between mb-5">
                       <span className="text-sm font-medium text-card-foreground">Condition 1</span>
                       <Button 
@@ -1024,89 +1024,91 @@ function App() {
                         <X size={16} weight="regular" />
                       </Button>
                     </div>
-                    <div className="grid grid-cols-1 lg:grid-cols-10 gap-4 items-end">
-                      <div className="lg:col-span-2">
-                        <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Metric</Label>
-                        <Select defaultValue="">
-                          <SelectTrigger className="bg-input border-border text-card-foreground text-sm h-10">
-                            <SelectValue placeholder="Select metric..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="acos">ACoS</SelectItem>
-                            <SelectItem value="roas">ROAS</SelectItem>
-                            <SelectItem value="ctr">CTR</SelectItem>
-                            <SelectItem value="impressions">Impressions</SelectItem>
-                            <SelectItem value="clicks">Clicks</SelectItem>
-                            <SelectItem value="conversions">Conversions</SelectItem>
-                            <SelectItem value="spend">Spend</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="lg:col-span-2">
-                        <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Time Period</Label>
-                        <Select defaultValue="">
-                          <SelectTrigger className="bg-input border-border text-card-foreground text-sm h-10">
-                            <SelectValue placeholder="Select period..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="last-7-days">Last 7 Days</SelectItem>
-                            <SelectItem value="last-14-days">Last 14 Days</SelectItem>
-                            <SelectItem value="last-30-days">Last 30 Days</SelectItem>
-                            <SelectItem value="last-60-days">Last 60 Days</SelectItem>
-                            <SelectItem value="last-90-days">Last 90 Days</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="lg:col-span-2">
-                        <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Comparison</Label>
-                        <Select defaultValue="">
-                          <SelectTrigger className="bg-input border-border text-card-foreground text-sm h-10">
-                            <SelectValue placeholder="Select..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="current-period">Current Period</SelectItem>
-                            <SelectItem value="previous-period">Previous Period</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="lg:col-span-2">
-                        <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Operator</Label>
-                        <Select defaultValue="">
-                          <SelectTrigger className="bg-input border-border text-card-foreground text-sm h-10">
-                            <SelectValue placeholder="Select..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="greater-than">Greater Than (&gt;)</SelectItem>
-                            <SelectItem value="less-than">Less Than (&lt;)</SelectItem>
-                            <SelectItem value="equal-to">Equal To (=)</SelectItem>
-                            <SelectItem value="greater-equal">Greater or Equal (≥)</SelectItem>
-                            <SelectItem value="less-equal">Less or Equal (≤)</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="lg:col-span-2">
-                        <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Target Value</Label>
-                        <Input 
-                          className="bg-input border-border text-card-foreground text-sm h-10"
-                          placeholder="e.g., 25, 3.5, 100"
-                        />
+                    <div className="grid grid-cols-1 gap-5">
+                      <div className="grid grid-cols-5 gap-4">
+                        <div>
+                          <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Metric</Label>
+                          <Select defaultValue="">
+                            <SelectTrigger className="bg-input border-border text-card-foreground text-sm h-11 w-full">
+                              <SelectValue placeholder="Select metric..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="acos">ACoS</SelectItem>
+                              <SelectItem value="roas">ROAS</SelectItem>
+                              <SelectItem value="ctr">CTR</SelectItem>
+                              <SelectItem value="impressions">Impressions</SelectItem>
+                              <SelectItem value="clicks">Clicks</SelectItem>
+                              <SelectItem value="conversions">Conversions</SelectItem>
+                              <SelectItem value="spend">Spend</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Time Period</Label>
+                          <Select defaultValue="">
+                            <SelectTrigger className="bg-input border-border text-card-foreground text-sm h-11 w-full">
+                              <SelectValue placeholder="Select period..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="last-7-days">Last 7 Days</SelectItem>
+                              <SelectItem value="last-14-days">Last 14 Days</SelectItem>
+                              <SelectItem value="last-30-days">Last 30 Days</SelectItem>
+                              <SelectItem value="last-60-days">Last 60 Days</SelectItem>
+                              <SelectItem value="last-90-days">Last 90 Days</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Comparison</Label>
+                          <Select defaultValue="">
+                            <SelectTrigger className="bg-input border-border text-card-foreground text-sm h-11 w-full">
+                              <SelectValue placeholder="Select..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="current-period">Current Period</SelectItem>
+                              <SelectItem value="previous-period">Previous Period</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Operator</Label>
+                          <Select defaultValue="">
+                            <SelectTrigger className="bg-input border-border text-card-foreground text-sm h-11 w-full">
+                              <SelectValue placeholder="Select..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="greater-than">Greater Than (&gt;)</SelectItem>
+                              <SelectItem value="less-than">Less Than (&lt;)</SelectItem>
+                              <SelectItem value="equal-to">Equal To (=)</SelectItem>
+                              <SelectItem value="greater-equal">Greater or Equal (≥)</SelectItem>
+                              <SelectItem value="less-equal">Less or Equal (≤)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Target Value</Label>
+                          <Input 
+                            className="bg-input border-border text-card-foreground text-sm h-11 w-full"
+                            placeholder="e.g., 25, 3.5, 100"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
 
                   <Button 
                     variant="outline"
-                    className="w-full border-dashed border-2 text-primary hover:text-primary hover:bg-primary/5 h-11"
+                    className="w-full border-dashed border-2 text-primary hover:text-primary hover:bg-primary/5 h-12"
                   >
                     <Plus size={18} weight="regular" className="mr-2" />
                     Add Another Condition
                   </Button>
 
-                  <div className="bg-accent/5 rounded-lg p-4 border border-accent/20 mt-6">
+                  <div className="bg-accent/5 rounded-lg p-5 border border-accent/20 mt-6">
                     <div className="flex items-start gap-3">
                       <Info size={18} weight="regular" className="text-accent flex-shrink-0 mt-0.5" />
                       <div className="flex-1">
-                        <p className="text-sm text-card-foreground font-medium mb-2">Cooldown Period</p>
+                        <p className="text-sm text-card-foreground font-medium mb-3">Cooldown Period</p>
                         <div className="flex items-center gap-3 flex-wrap">
                           <span className="text-sm text-muted-foreground">
                             After applying this optimization, wait
@@ -1115,7 +1117,7 @@ function App() {
                             type="number"
                             defaultValue="3"
                             min="1"
-                            className="bg-input border-border text-card-foreground w-20 h-9 text-sm"
+                            className="bg-input border-border text-card-foreground w-24 h-10 text-sm"
                           />
                           <span className="text-sm text-muted-foreground">
                             days before running another optimization
@@ -1127,7 +1129,7 @@ function App() {
                 </div>
               </div>
 
-              <div className="bg-muted/20 rounded-lg p-6 border border-border">
+              <div className="bg-muted/20 rounded-lg p-8 border border-border">
                 <div className="flex items-start gap-3 mb-6">
                   <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-semibold text-sm flex-shrink-0">
                     3
@@ -1140,11 +1142,11 @@ function App() {
                   </div>
                 </div>
                 <div className="pl-11">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Action Type</Label>
                       <Select defaultValue="">
-                        <SelectTrigger className="bg-input border-border text-card-foreground font-medium h-10">
+                        <SelectTrigger className="bg-input border-border text-card-foreground font-medium h-11 w-full">
                           <SelectValue placeholder="Select action to perform..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -1160,14 +1162,14 @@ function App() {
                     </div>
                     <div>
                       <Label className="text-xs font-medium text-muted-foreground mb-2 block uppercase tracking-wide">Adjustment Amount</Label>
-                      <div className="flex gap-2">
+                      <div className="flex gap-3">
                         <Input 
                           type="number"
                           placeholder="e.g., 10"
-                          className="bg-input border-border text-card-foreground h-10 text-sm"
+                          className="bg-input border-border text-card-foreground h-11 text-sm flex-1"
                         />
                         <Select defaultValue="percentage">
-                          <SelectTrigger className="bg-input border-border text-card-foreground h-10 w-28">
+                          <SelectTrigger className="bg-input border-border text-card-foreground h-11 w-32">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
