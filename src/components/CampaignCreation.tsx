@@ -417,11 +417,11 @@ export function CampaignCreation({ onCreateOptimization }: CampaignCreationProps
 
             <div>
               <Label className="text-sm font-medium text-card-foreground mb-3 block">
-                Bidding Adjustment: {campaignSettings.biddingAdjustment.toFixed(2)}%
+                Bidding Adjustment: {(campaignSettings.biddingAdjustment || 0).toFixed(2)}%
               </Label>
               <div className="flex items-center gap-4">
                 <Slider
-                  value={[campaignSettings.biddingAdjustment]}
+                  value={[campaignSettings.biddingAdjustment || 0]}
                   onValueChange={(values) => updateSetting('biddingAdjustment', values[0])}
                   min={-100}
                   max={100}
