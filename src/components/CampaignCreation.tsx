@@ -6,8 +6,10 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Slider } from '@/components/ui/slider'
 import { Badge } from '@/components/ui/badge'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
+import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
-import { Plus, Info, Rocket, Target, MagnifyingGlass, GridFour, ShieldCheck, Crosshair, X, ArrowLeft } from '@phosphor-icons/react'
+import { Plus, Info, Rocket, Target, MagnifyingGlass, GridFour, ShieldCheck, Crosshair, X, ArrowLeft, Trash } from '@phosphor-icons/react'
 
 type CampaignType = 'sp-auto' | 'sp-kt-exact' | 'sp-kt-phrase' | 'sp-kt-broad' | 'sp-pt' | 'sd-pt' | 'sp-pt-defense'
 
@@ -106,7 +108,12 @@ export function CampaignCreation({ onCreateOptimization }: CampaignCreationProps
   const [selectedCampaignType, setSelectedCampaignType] = useKV<CampaignType | null>('selected-campaign-type', null)
   const [campaignConditions, setCampaignConditions] = useKV<CampaignCondition[]>('campaign-conditions', [])
   const [campaignSettings, setCampaignSettings] = useKV<CampaignSettings>('campaign-settings', defaultCampaignSettings)
+  const [includedAsins, setIncludedAsins] = useKV<string[]>('included-asins', [])
+  const [excludedAsins, setExcludedAsins] = useKV<string[]>('excluded-asins', [])
   const [activeFilter, setActiveFilter] = useState<string>('all')
+  const [asinDialogOpen, setAsinDialogOpen] = useState(false)
+  const [asinDialogType, setAsinDialogType] = useState<'include' | 'exclude'>('include')
+  const [asinInput, setAsinInput] = useState('')
 
   const updateSetting = <K extends keyof CampaignSettings>(key: K, value: CampaignSettings[K]) => {
     setCampaignSettings((current) => ({ ...current!, [key]: value }))
@@ -136,7 +143,41 @@ export function CampaignCreation({ onCreateOptimization }: CampaignCreationProps
     toast.success('Campaign creation settings saved')
   }
 
-  if (!campaignSettings || !campaignConditions) {
+  const openAsinDialog = (type: 'include' | 'exclude') => {
+    setAsinDialogType(type)
+    const currentAsins = type === 'include' ? includedAsins : excludedAsins
+    setAsinInput(currentAsins?.join('\n') || '')
+    setAsinDialogOpen(true)
+  }
+
+  const saveAsins = () => {
+    const asins = asinInput
+      .split('\n')
+      .map(asin => asin.trim())
+      .filter(asin => asin.length > 0)
+    
+    if (asinDialogType === 'include') {
+      setIncludedAsins(asins)
+      toast.success(`${asins.length} ASINs added to include list`)
+    } else {
+      setExcludedAsins(asins)
+      toast.success(`${asins.length} ASINs added to exclude list`)
+    }
+    
+    setAsinDialogOpen(false)
+    setAsinInput('')
+  }
+
+  const removeAsin = (asin: string, type: 'include' | 'exclude') => {
+    if (type === 'include') {
+      setIncludedAsins((current) => (current || []).filter(a => a !== asin))
+    } else {
+      setExcludedAsins((current) => (current || []).filter(a => a !== asin))
+    }
+    toast.success('ASIN removed')
+  }
+
+  if (!campaignSettings || !campaignConditions || !includedAsins || !excludedAsins) {
     return null
   }
 
@@ -463,7 +504,10 @@ export function CampaignCreation({ onCreateOptimization }: CampaignCreationProps
                   <div className="text-xs opacity-75">Include all products in campaigns</div>
                 </button>
                 <button
-                  onClick={() => updateSetting('advertisedProducts', 'include')}
+                  onClick={() => {
+                    updateSetting('advertisedProducts', 'include')
+                    openAsinDialog('include')
+                  }}
                   className={`flex-1 text-center p-4 rounded-lg border-2 transition-all ${
                     campaignSettings.advertisedProducts === 'include'
                       ? 'border-primary bg-primary/5 text-card-foreground font-medium'
@@ -472,9 +516,17 @@ export function CampaignCreation({ onCreateOptimization }: CampaignCreationProps
                 >
                   <div className="text-sm font-medium mb-1">Include Specific Products</div>
                   <div className="text-xs opacity-75">Choose products to advertise</div>
+                  {(includedAsins?.length || 0) > 0 && (
+                    <Badge className="mt-2 bg-primary text-primary-foreground">
+                      {includedAsins.length} ASINs
+                    </Badge>
+                  )}
                 </button>
                 <button
-                  onClick={() => updateSetting('advertisedProducts', 'exclude')}
+                  onClick={() => {
+                    updateSetting('advertisedProducts', 'exclude')
+                    openAsinDialog('exclude')
+                  }}
                   className={`flex-1 text-center p-4 rounded-lg border-2 transition-all ${
                     campaignSettings.advertisedProducts === 'exclude'
                       ? 'border-primary bg-primary/5 text-card-foreground font-medium'
@@ -483,8 +535,71 @@ export function CampaignCreation({ onCreateOptimization }: CampaignCreationProps
                 >
                   <div className="text-sm font-medium mb-1">Exclude Specific Products</div>
                   <div className="text-xs opacity-75">Choose products to exclude</div>
+                  {(excludedAsins?.length || 0) > 0 && (
+                    <Badge className="mt-2 bg-primary text-primary-foreground">
+                      {excludedAsins.length} ASINs
+                    </Badge>
+                  )}
                 </button>
               </div>
+              
+              {campaignSettings.advertisedProducts === 'include' && (includedAsins?.length || 0) > 0 && (
+                <div className="mt-4 p-4 bg-muted/30 rounded-lg border border-border">
+                  <div className="flex items-center justify-between mb-3">
+                    <Label className="text-sm font-medium text-card-foreground">Included ASINs ({includedAsins.length})</Label>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => openAsinDialog('include')}
+                      className="text-xs h-7 text-primary hover:text-primary"
+                    >
+                      Edit List
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
+                    {includedAsins.map((asin) => (
+                      <Badge key={asin} variant="secondary" className="text-xs">
+                        {asin}
+                        <button
+                          onClick={() => removeAsin(asin, 'include')}
+                          className="ml-2 hover:text-destructive"
+                        >
+                          <X size={12} weight="bold" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {campaignSettings.advertisedProducts === 'exclude' && (excludedAsins?.length || 0) > 0 && (
+                <div className="mt-4 p-4 bg-muted/30 rounded-lg border border-border">
+                  <div className="flex items-center justify-between mb-3">
+                    <Label className="text-sm font-medium text-card-foreground">Excluded ASINs ({excludedAsins.length})</Label>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => openAsinDialog('exclude')}
+                      className="text-xs h-7 text-primary hover:text-primary"
+                    >
+                      Edit List
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
+                    {excludedAsins.map((asin) => (
+                      <Badge key={asin} variant="secondary" className="text-xs">
+                        {asin}
+                        <button
+                          onClick={() => removeAsin(asin, 'exclude')}
+                          className="ml-2 hover:text-destructive"
+                        >
+                          <X size={12} weight="bold" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -504,6 +619,74 @@ export function CampaignCreation({ onCreateOptimization }: CampaignCreationProps
           Save Optimization
         </Button>
       </div>
+
+      <Dialog open={asinDialogOpen} onOpenChange={setAsinDialogOpen}>
+        <DialogContent className="max-w-2xl bg-card">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold text-card-foreground">
+              {asinDialogType === 'include' ? 'Include Specific Products' : 'Exclude Specific Products'}
+            </DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">
+              {asinDialogType === 'include' 
+                ? 'Add ASINs for products you want to include in your campaigns. Enter one ASIN per line.'
+                : 'Add ASINs for products you want to exclude from your campaigns. Enter one ASIN per line.'
+              }
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <Label className="text-sm font-medium text-card-foreground mb-2 block">
+                ASIN List
+              </Label>
+              <Textarea
+                value={asinInput}
+                onChange={(e) => setAsinInput(e.target.value)}
+                placeholder="B07XYZ1234&#10;B08ABC5678&#10;B09DEF9012"
+                className="bg-input border-border text-card-foreground min-h-[200px] font-mono text-sm"
+              />
+              <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+                <Info size={14} weight="regular" />
+                <span>
+                  Enter one ASIN per line. Current count: {asinInput.split('\n').filter(line => line.trim().length > 0).length}
+                </span>
+              </div>
+            </div>
+
+            <div className="bg-accent/5 rounded-lg p-4 border border-accent/20">
+              <div className="flex items-start gap-3">
+                <Info size={18} weight="regular" className="text-accent flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm text-card-foreground font-medium mb-1">ASIN Format</p>
+                  <p className="text-xs text-muted-foreground">
+                    ASINs are typically 10 characters long and start with 'B' (e.g., B07XYZ1234). 
+                    Paste a list with one ASIN per line. Duplicates will be automatically removed.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-end items-center gap-3 pt-4 border-t border-border">
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setAsinDialogOpen(false)
+                setAsinInput('')
+              }}
+              className="text-muted-foreground hover:text-card-foreground"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={saveAsins}
+              className="bg-primary hover:bg-accent text-primary-foreground shadow-lg shadow-primary/20"
+            >
+              Save ASINs
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
