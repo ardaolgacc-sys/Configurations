@@ -20,21 +20,23 @@ interface CampaignCondition {
 }
 
 interface CampaignSettings {
-  totalBudget: string
   budgetPerCampaign: string
   maxTargetCount: string
   biddingStrategy: string
   bidCalculationMethod: string
   biddingAdjustment: number
+  harvestingFrequency: string
+  advertisedProducts: 'all' | 'include' | 'exclude'
 }
 
 const defaultCampaignSettings: CampaignSettings = {
-  totalBudget: '$0.00',
   budgetPerCampaign: '$0.00',
   maxTargetCount: '0',
   biddingStrategy: 'down-only',
   bidCalculationMethod: 'cpc-7-days',
-  biddingAdjustment: 0
+  biddingAdjustment: 0,
+  harvestingFrequency: 'every-7-days',
+  advertisedProducts: 'all'
 }
 
 interface CampaignCreationProps {
@@ -347,16 +349,6 @@ export function CampaignCreation({ onCreateOptimization }: CampaignCreationProps
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div>
-              <Label className="text-sm font-medium text-card-foreground mb-2 block">Total Budget</Label>
-              <Input
-                value={campaignSettings.totalBudget}
-                onChange={(e) => updateSetting('totalBudget', e.target.value)}
-                className="bg-input border-border text-card-foreground"
-                placeholder="$0.00"
-              />
-            </div>
-
-            <div>
               <Label className="text-sm font-medium text-card-foreground mb-2 block">Budget Per Campaign</Label>
               <Input
                 value={campaignSettings.budgetPerCampaign}
@@ -364,6 +356,23 @@ export function CampaignCreation({ onCreateOptimization }: CampaignCreationProps
                 className="bg-input border-border text-card-foreground"
                 placeholder="$0.00"
               />
+            </div>
+
+            <div>
+              <Label className="text-sm font-medium text-card-foreground mb-2 block">Target Harvesting Frequency</Label>
+              <Select
+                value={campaignSettings.harvestingFrequency}
+                onValueChange={(v) => updateSetting('harvestingFrequency', v)}
+              >
+                <SelectTrigger className="bg-input border-border text-card-foreground">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="every-7-days">Every 7 Days</SelectItem>
+                  <SelectItem value="every-14-days">Every 14 Days</SelectItem>
+                  <SelectItem value="every-30-days">Every 30 Days</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div>
@@ -436,6 +445,45 @@ export function CampaignCreation({ onCreateOptimization }: CampaignCreationProps
                 >
                   Reset
                 </Button>
+              </div>
+            </div>
+
+            <div className="md:col-span-2 lg:col-span-3">
+              <Label className="text-sm font-medium text-card-foreground mb-3 block">Advertised Products</Label>
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => updateSetting('advertisedProducts', 'all')}
+                  className={`flex-1 text-center p-4 rounded-lg border-2 transition-all ${
+                    campaignSettings.advertisedProducts === 'all'
+                      ? 'border-primary bg-primary/5 text-card-foreground font-medium'
+                      : 'border-border bg-card text-muted-foreground hover:border-primary/50'
+                  }`}
+                >
+                  <div className="text-sm font-medium mb-1">All Products</div>
+                  <div className="text-xs opacity-75">Include all products in campaigns</div>
+                </button>
+                <button
+                  onClick={() => updateSetting('advertisedProducts', 'include')}
+                  className={`flex-1 text-center p-4 rounded-lg border-2 transition-all ${
+                    campaignSettings.advertisedProducts === 'include'
+                      ? 'border-primary bg-primary/5 text-card-foreground font-medium'
+                      : 'border-border bg-card text-muted-foreground hover:border-primary/50'
+                  }`}
+                >
+                  <div className="text-sm font-medium mb-1">Include Specific Products</div>
+                  <div className="text-xs opacity-75">Choose products to advertise</div>
+                </button>
+                <button
+                  onClick={() => updateSetting('advertisedProducts', 'exclude')}
+                  className={`flex-1 text-center p-4 rounded-lg border-2 transition-all ${
+                    campaignSettings.advertisedProducts === 'exclude'
+                      ? 'border-primary bg-primary/5 text-card-foreground font-medium'
+                      : 'border-border bg-card text-muted-foreground hover:border-primary/50'
+                  }`}
+                >
+                  <div className="text-sm font-medium mb-1">Exclude Specific Products</div>
+                  <div className="text-xs opacity-75">Choose products to exclude</div>
+                </button>
               </div>
             </div>
           </div>
