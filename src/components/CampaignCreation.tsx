@@ -3,378 +3,458 @@ import { useKV } from '@github/spark/hooks'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Slider } from '@/components/ui/slider'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
-import { Plus, Trash, CaretDown, CaretUp, Info, Package, Sparkle, X } from '@phosphor-icons/react'
+import { Plus, Info, Rocket, Target, MagnifyingGlass, GridFour, ShieldCheck, Crosshair, X, ArrowLeft } from '@phosphor-icons/react'
 
-interface Optimization {
+type CampaignType = 'sp-auto' | 'sp-kt-exact' | 'sp-kt-phrase' | 'sp-kt-broad' | 'sp-pt' | 'sd-pt' | 'sp-pt-defense'
+
+interface CampaignCondition {
   id: string
-  title: string
-  action: string
-  condition: string
+  metric: string
+  timePeriod: string
+  operator: string
+  value: string
 }
 
-type ProductSelectionType = 'all-products' | 'include-specific' | 'exclude-specific'
-
 interface CampaignSettings {
-  dailyBudget: string
-  harvestingFrequency: 'every-7-days' | 'every-14-days' | 'every-30-days'
-  productSelection: ProductSelectionType
+  totalBudget: string
+  budgetPerCampaign: string
+  maxTargetCount: string
+  biddingStrategy: string
+  bidCalculationMethod: string
+  biddingAdjustment: number
 }
 
 const defaultCampaignSettings: CampaignSettings = {
-  dailyBudget: '$50.00',
-  harvestingFrequency: 'every-14-days',
-  productSelection: 'all-products'
+  totalBudget: '$0.00',
+  budgetPerCampaign: '$0.00',
+  maxTargetCount: '0',
+  biddingStrategy: 'down-only',
+  bidCalculationMethod: 'cpc-7-days',
+  biddingAdjustment: 0
 }
 
 interface CampaignCreationProps {
   onCreateOptimization: (section: 'campaign-creation') => void
 }
 
+const campaignTypes = [
+  {
+    id: 'sp-auto' as CampaignType,
+    icon: Rocket,
+    title: 'SP Auto',
+    badge: 'Automatic',
+    description: 'Automatically create sponsored product auto campaigns where Amazon targets similar keywords and products.',
+    tags: ['Automatic', 'Easy Setup', 'Wide Reach']
+  },
+  {
+    id: 'sp-kt-exact' as CampaignType,
+    icon: Target,
+    title: 'SP KT Exact',
+    badge: 'Precise Targeting',
+    description: 'Automatically harvest converted keywords and create sponsored product campaigns using exact match targeting to focus on high-performing precisely matched search terms.',
+    tags: ['Precise Targeting', 'High Performance']
+  },
+  {
+    id: 'sp-kt-phrase' as CampaignType,
+    icon: MagnifyingGlass,
+    title: 'SP KT Phrase',
+    badge: 'Flexible Targeting',
+    description: 'Automatically harvest converted keywords and create sponsored product campaigns using phrase match targeting to reach shoppers searching with relevant keyword experiences.',
+    tags: ['Phrase Match', 'Flexible Targeting']
+  },
+  {
+    id: 'sp-kt-broad' as CampaignType,
+    icon: GridFour,
+    title: 'SP KT Broad',
+    badge: 'Discovery',
+    description: 'Automatically harvest converted keywords and create sponsored product campaigns using broad match targeting to capture a wider range of related search terms and variations.',
+    tags: ['Broad Match', 'Discovery']
+  },
+  {
+    id: 'sp-pt' as CampaignType,
+    icon: Crosshair,
+    title: 'SP PT',
+    badge: 'Product Targeting',
+    description: 'Automatically harvest converted ASINs and create sponsored product targeting campaigns by leveraging those products.',
+    tags: ['Product Targeting', 'Competitor Analysis']
+  },
+  {
+    id: 'sd-pt' as CampaignType,
+    icon: ShieldCheck,
+    title: 'SD PT',
+    badge: 'Visibility',
+    description: 'Enhance brand awareness and consideration across Amazon, maximizing visibility and engagement opportunities.',
+    tags: ['Visibility', 'Brand Awareness']
+  },
+  {
+    id: 'sp-pt-defense' as CampaignType,
+    icon: ShieldCheck,
+    title: 'SP PT Defense',
+    badge: 'Defensive',
+    description: 'Defend your listings or posts, using our comprehensive selling opportunities to defend tactics.',
+    tags: ['Defense', 'Competitive']
+  }
+]
+
 export function CampaignCreation({ onCreateOptimization }: CampaignCreationProps) {
+  const [selectedCampaignType, setSelectedCampaignType] = useKV<CampaignType | null>('selected-campaign-type', null)
+  const [campaignConditions, setCampaignConditions] = useKV<CampaignCondition[]>('campaign-conditions', [])
   const [campaignSettings, setCampaignSettings] = useKV<CampaignSettings>('campaign-settings', defaultCampaignSettings)
-  const [campaignCreationOptimizations, setCampaignCreationOptimizations] = useKV<Optimization[]>('campaign-creation-optimizations', [])
-  const [addOptimizationPopoverOpen, setAddOptimizationPopoverOpen] = useState(false)
-
-  const moveOptimizationUp = (index: number) => {
-    if (index === 0) return
-    
-    setCampaignCreationOptimizations((current) => {
-      const newOptimizations = [...(current || [])]
-      const temp = newOptimizations[index]
-      newOptimizations[index] = newOptimizations[index - 1]
-      newOptimizations[index - 1] = temp
-      
-      newOptimizations.forEach((opt, i) => {
-        opt.id = String(i + 1)
-      })
-      
-      return newOptimizations
-    })
-    
-    toast.success('Optimization priority updated')
-  }
-
-  const moveOptimizationDown = (index: number) => {
-    const optimizations = campaignCreationOptimizations || []
-    if (index === optimizations.length - 1) return
-    
-    setCampaignCreationOptimizations((current) => {
-      const newOptimizations = [...(current || [])]
-      const temp = newOptimizations[index]
-      newOptimizations[index] = newOptimizations[index + 1]
-      newOptimizations[index + 1] = temp
-      
-      newOptimizations.forEach((opt, i) => {
-        opt.id = String(i + 1)
-      })
-      
-      return newOptimizations
-    })
-    
-    toast.success('Optimization priority updated')
-  }
-
-  const deleteOptimization = (index: number) => {
-    setCampaignCreationOptimizations((current) => {
-      const newOptimizations = (current || []).filter((_, i) => i !== index)
-      
-      newOptimizations.forEach((opt, i) => {
-        opt.id = String(i + 1)
-      })
-      
-      return newOptimizations
-    })
-    
-    toast.success('Optimization deleted')
-  }
-
-  const handleOptimizationTypeSelect = (type: 'eva-ai' | 'dont-optimize' | 'custom') => {
-    setAddOptimizationPopoverOpen(false)
-    
-    if (type === 'eva-ai') {
-      toast.info('Eva AI will optimize this automatically')
-    } else if (type === 'dont-optimize') {
-      toast.info('Optimization disabled for this section')
-    } else if (type === 'custom') {
-      onCreateOptimization('campaign-creation')
-    }
-  }
+  const [activeFilter, setActiveFilter] = useState<string>('all')
 
   const updateSetting = <K extends keyof CampaignSettings>(key: K, value: CampaignSettings[K]) => {
     setCampaignSettings((current) => ({ ...current!, [key]: value }))
   }
 
-  const handleSaveSettings = () => {
+  const addCondition = () => {
+    const newCondition: CampaignCondition = {
+      id: `condition-${Date.now()}`,
+      metric: '',
+      timePeriod: '',
+      operator: '',
+      value: ''
+    }
+    setCampaignConditions((current) => [...(current || []), newCondition])
+  }
+
+  const removeCondition = (id: string) => {
+    setCampaignConditions((current) => (current || []).filter(c => c.id !== id))
+    toast.success('Condition removed')
+  }
+
+  const handleSave = () => {
+    if (!selectedCampaignType) {
+      toast.error('Please select a campaign type')
+      return
+    }
     toast.success('Campaign creation settings saved')
   }
 
-  if (!campaignSettings) {
+  if (!campaignSettings || !campaignConditions) {
     return null
   }
+
+  const filteredCampaigns = activeFilter === 'all' 
+    ? campaignTypes 
+    : campaignTypes.filter(ct => {
+        if (activeFilter === 'automatic') return ct.id === 'sp-auto'
+        if (activeFilter === 'performance') return ct.id === 'sp-kt-exact'
+        if (activeFilter === 'sopr') return ['sp-auto', 'sp-kt-exact', 'sp-kt-phrase'].includes(ct.id)
+        if (activeFilter === 'keyword') return ct.id.includes('kt')
+        if (activeFilter === 'product') return ct.id.includes('pt')
+        if (activeFilter === 'sponsored-product') return ct.id.startsWith('sp')
+        if (activeFilter === 'sponsored-display') return ct.id.startsWith('sd')
+        if (activeFilter === 'defense') return ct.id.includes('defense')
+        return true
+      })
 
   return (
     <div className="h-full flex flex-col">
       <div className="mb-6">
-        <h2 className="text-lg font-semibold text-card-foreground mb-2">Configure Campaign Creation</h2>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-muted-foreground hover:text-primary mb-4 -ml-2"
+        >
+          <ArrowLeft size={16} weight="regular" className="mr-2" />
+          Back to Goal Details
+        </Button>
+        <h2 className="text-lg font-semibold text-card-foreground mb-2">Auto Campaign Creation</h2>
         <p className="text-sm text-muted-foreground">
-          Set up budget parameters, targeting frequency, and product selection for automated campaign creation.
+          Configure automated campaign creation rules based on performance metrics and conditions.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-4 flex flex-col gap-6 bg-card rounded-lg shadow-sm p-6 border border-border">
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <h3 className="text-sm font-semibold text-card-foreground mb-1">Step 1: Budget & Frequency</h3>
-                <p className="text-xs text-muted-foreground">Configure daily budget and targeting schedule</p>
-              </div>
-            </div>
+      <div className="space-y-6 flex-1 overflow-y-auto">
+        <div className="bg-card rounded-lg shadow-sm p-6 border border-border">
+          <div className="mb-6">
+            <h3 className="text-base font-semibold text-card-foreground mb-2">CAMPAIGN TYPE</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Select the campaign type you want to automatically create
+            </p>
             
-            <div className="space-y-5">
-              <div>
-                <div className="flex items-center gap-1 mb-1.5">
-                  <Label className="text-sm font-medium text-foreground">Total Daily Budget</Label>
-                  <Info size={16} weight="regular" className="text-muted-foreground cursor-help" />
-                </div>
-                <Input 
-                  value={campaignSettings.dailyBudget}
-                  onChange={(e) => updateSetting('dailyBudget', e.target.value)}
-                  className="bg-input border-border text-card-foreground"
-                  placeholder="$50.00"
-                />
-                <p className="mt-1 text-xs text-muted-foreground">
-                  The total daily budget across all campaigns
-                </p>
-              </div>
-
-              <div>
-                <div className="flex items-center gap-1 mb-1.5">
-                  <Label className="text-sm font-medium text-foreground">Target Harvesting Frequency</Label>
-                  <Info size={16} weight="regular" className="text-muted-foreground cursor-help" />
-                </div>
-                <Select 
-                  value={campaignSettings.harvestingFrequency} 
-                  onValueChange={(v) => updateSetting('harvestingFrequency', v as CampaignSettings['harvestingFrequency'])}
+            <div className="flex flex-wrap items-center gap-2 mb-4">
+              <span className="text-sm text-muted-foreground">Filter by:</span>
+              {['All', 'Automatic', 'Performance', 'SOPR', 'Keyword', 'Product', 'Sponsored Product', 'Sponsored Display', 'Defense'].map((filter) => (
+                <Badge
+                  key={filter}
+                  variant={activeFilter === filter.toLowerCase() ? 'default' : 'outline'}
+                  className={`cursor-pointer ${activeFilter === filter.toLowerCase() ? 'bg-primary text-primary-foreground' : 'bg-transparent text-muted-foreground hover:bg-muted'}`}
+                  onClick={() => setActiveFilter(filter.toLowerCase())}
                 >
-                  <SelectTrigger className="bg-input border-border text-card-foreground">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="every-7-days">Every 7 Days</SelectItem>
-                    <SelectItem value="every-14-days">Every 14 Days</SelectItem>
-                    <SelectItem value="every-30-days">Every 30 Days</SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  How often to harvest and create new campaigns
-                </p>
-              </div>
+                  {filter}
+                </Badge>
+              ))}
             </div>
           </div>
 
-          <Separator className="bg-border" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {filteredCampaigns.map((campaign) => {
+              const Icon = campaign.icon
+              const isSelected = selectedCampaignType === campaign.id
+              return (
+                <button
+                  key={campaign.id}
+                  onClick={() => setSelectedCampaignType(campaign.id)}
+                  className={`relative text-left p-4 rounded-lg border-2 transition-all ${
+                    isSelected 
+                      ? 'border-primary bg-primary/5 shadow-lg' 
+                      : 'border-border bg-card hover:border-primary/50 hover:bg-muted/50'
+                  }`}
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <Icon size={24} weight="regular" className={isSelected ? 'text-primary' : 'text-muted-foreground'} />
+                      {isSelected && (
+                        <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary"></div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <h4 className="text-sm font-semibold text-card-foreground mb-1 flex items-center gap-2">
+                    {campaign.title}
+                    <Badge variant="outline" className="text-xs bg-muted/50 border-border">
+                      {campaign.badge}
+                    </Badge>
+                  </h4>
+                  
+                  <p className="text-xs text-muted-foreground mb-3 line-clamp-3">
+                    {campaign.description}
+                  </p>
+                  
+                  <div className="flex flex-wrap gap-1">
+                    {campaign.tags.map((tag) => (
+                      <Badge key={tag} variant="secondary" className="text-xs py-0 px-2">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        </div>
 
-          <div>
-            <div className="mb-3">
-              <h3 className="text-sm font-semibold text-card-foreground mb-1">Step 2: Advertised Products</h3>
-              <p className="text-xs text-muted-foreground">Select which products to include in campaigns</p>
-            </div>
-            
-            <div className="bg-muted rounded-md p-4 space-y-3">
-              <RadioGroup 
-                value={campaignSettings.productSelection} 
-                onValueChange={(v) => updateSetting('productSelection', v as ProductSelectionType)}
-              >
-                <div className="space-y-3">
-                  <label className={`flex items-start space-x-3 cursor-pointer group p-2 -mx-2 rounded ${campaignSettings.productSelection === 'all-products' ? 'bg-primary/10 border border-primary/30' : ''}`}>
-                    <RadioGroupItem value="all-products" id="all-products" className="h-4 w-4 text-primary border-muted-foreground mt-0.5" />
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <Package size={16} weight="regular" className={campaignSettings.productSelection === 'all-products' ? 'text-primary' : 'text-muted-foreground'} />
-                        <span className={`text-sm ${campaignSettings.productSelection === 'all-products' ? 'font-bold text-card-foreground' : 'font-medium text-foreground group-hover:text-primary transition-colors'}`}>
-                          All Products
-                        </span>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-1 ml-6">
-                        Include all available products in your catalog
-                      </p>
-                    </div>
-                  </label>
+        <div className="bg-card rounded-lg shadow-sm p-6 border border-border">
+          <div className="mb-6">
+            <h3 className="text-base font-semibold text-card-foreground mb-2">CONDITIONS</h3>
+            <p className="text-sm text-muted-foreground">
+              Define the performance rules that will trigger the creation of new targets or keywords.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {(campaignConditions?.length || 0) > 0 ? (
+              campaignConditions?.map((condition) => (
+                <div key={condition.id} className="bg-muted/30 rounded-lg p-5 border border-border">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-sm font-medium text-card-foreground">Condition</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeCondition(condition.id)}
+                      className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
+                    >
+                      <X size={16} weight="regular" />
+                    </Button>
+                  </div>
                   
-                  <label className={`flex items-start space-x-3 cursor-pointer group p-2 -mx-2 rounded ${campaignSettings.productSelection === 'include-specific' ? 'bg-primary/10 border border-primary/30' : ''}`}>
-                    <RadioGroupItem value="include-specific" id="include-specific" className="h-4 w-4 text-primary border-muted-foreground mt-0.5" />
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <Plus size={16} weight="bold" className={campaignSettings.productSelection === 'include-specific' ? 'text-primary' : 'text-muted-foreground'} />
-                        <span className={`text-sm ${campaignSettings.productSelection === 'include-specific' ? 'font-bold text-card-foreground' : 'font-medium text-foreground group-hover:text-primary transition-colors'}`}>
-                          Include Specific Products
-                        </span>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-1 ml-6">
-                        Choose specific products to advertise
-                      </p>
+                  <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+                    <div className="lg:col-span-1">
+                      <Label className="text-xs font-medium text-muted-foreground mb-2 block">If</Label>
+                      <Select defaultValue="">
+                        <SelectTrigger className="bg-input border-border text-card-foreground text-sm h-10">
+                          <SelectValue placeholder="Select..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="clicks">Clicks</SelectItem>
+                          <SelectItem value="conversions">Conversions</SelectItem>
+                          <SelectItem value="impressions">Impressions</SelectItem>
+                          <SelectItem value="spend">Spend</SelectItem>
+                          <SelectItem value="acos">ACoS</SelectItem>
+                          <SelectItem value="roas">ROAS</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-                  </label>
-                  
-                  <label className={`flex items-start space-x-3 cursor-pointer group p-2 -mx-2 rounded ${campaignSettings.productSelection === 'exclude-specific' ? 'bg-primary/10 border border-primary/30' : ''}`}>
-                    <RadioGroupItem value="exclude-specific" id="exclude-specific" className="h-4 w-4 text-primary border-muted-foreground mt-0.5" />
-                    <div className="flex-1">
+                    
+                    <div className="lg:col-span-4">
+                      <Label className="text-xs font-medium text-muted-foreground mb-2 block">of the Search Term in the</Label>
                       <div className="flex items-center gap-2">
-                        <X size={16} weight="bold" className={campaignSettings.productSelection === 'exclude-specific' ? 'text-primary' : 'text-muted-foreground'} />
-                        <span className={`text-sm ${campaignSettings.productSelection === 'exclude-specific' ? 'font-bold text-card-foreground' : 'font-medium text-foreground group-hover:text-primary transition-colors'}`}>
-                          Exclude Specific Products
-                        </span>
+                        <Select defaultValue="">
+                          <SelectTrigger className="bg-input border-border text-card-foreground text-sm h-10 flex-1">
+                            <SelectValue placeholder="Select..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="last-7-days">Last 7 Days</SelectItem>
+                            <SelectItem value="last-14-days">Last 14 Days</SelectItem>
+                            <SelectItem value="last-30-days">Last 30 Days</SelectItem>
+                            <SelectItem value="last-60-days">Last 60 Days</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        
+                        <span className="text-sm text-muted-foreground">is</span>
+                        
+                        <Select defaultValue="">
+                          <SelectTrigger className="bg-input border-border text-card-foreground text-sm h-10 w-32">
+                            <SelectValue placeholder="Select..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="greater-than">&gt;</SelectItem>
+                            <SelectItem value="less-than">&lt;</SelectItem>
+                            <SelectItem value="equal-to">=</SelectItem>
+                            <SelectItem value="greater-equal">≥</SelectItem>
+                            <SelectItem value="less-equal">≤</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        
+                        <Input
+                          placeholder="Value"
+                          className="bg-input border-border text-card-foreground text-sm h-10 w-32"
+                        />
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1 ml-6">
-                        Exclude certain products from campaigns
-                      </p>
                     </div>
-                  </label>
+                  </div>
                 </div>
-              </RadioGroup>
-            </div>
-
-            {(campaignSettings.productSelection === 'include-specific' || campaignSettings.productSelection === 'exclude-specific') && (
-              <Button
-                variant="outline"
-                className="w-full mt-3 border-primary/30 text-primary hover:bg-primary/5"
-                size="sm"
-              >
-                <Package size={16} weight="regular" className="mr-2" />
-                {campaignSettings.productSelection === 'include-specific' ? 'Select Products to Include' : 'Select Products to Exclude'}
-              </Button>
+              ))
+            ) : (
+              <div className="text-center py-8 border-2 border-dashed border-border rounded-lg">
+                <p className="text-sm text-muted-foreground">No conditions added yet</p>
+              </div>
             )}
-          </div>
-
-          <div className="mt-auto pt-4">
-            <Button 
-              onClick={handleSaveSettings}
-              className="w-full bg-primary hover:bg-accent text-primary-foreground text-sm font-semibold shadow-lg shadow-primary/20 transition-all active:scale-95"
+            
+            <Button
+              variant="outline"
+              className="w-full border-dashed border-2 text-primary hover:text-primary hover:bg-primary/5 h-11"
+              onClick={addCondition}
             >
-              Save Settings
+              <Plus size={18} weight="regular" className="mr-2" />
+              New Condition
             </Button>
           </div>
         </div>
 
-        <div className="lg:col-span-8 flex flex-col bg-card rounded-lg shadow-sm border border-border p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <Label className="text-sm font-medium text-card-foreground">Campaign Creation Rules</Label>
-              <div className={`px-2 py-0.5 rounded-full text-xs font-medium ${(campaignCreationOptimizations?.length || 0) > 0 ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
-                {campaignCreationOptimizations?.length || 0} added
-              </div>
-            </div>
-            <Popover open={addOptimizationPopoverOpen} onOpenChange={setAddOptimizationPopoverOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  size="sm"
-                  className="bg-primary hover:bg-accent text-primary-foreground h-7 px-3 text-xs font-semibold shadow-sm"
-                >
-                  <Plus size={14} weight="regular" className="mr-1" />
-                  Add Optimization
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-64 p-2" align="end">
-                <div className="space-y-1">
-                  <button
-                    onClick={() => handleOptimizationTypeSelect('eva-ai')}
-                    className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
-                  >
-                    <div className="font-medium text-card-foreground">Optimized by Eva AI</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">Let AI handle optimization</div>
-                  </button>
-                  <button
-                    onClick={() => handleOptimizationTypeSelect('dont-optimize')}
-                    className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
-                  >
-                    <div className="font-medium text-card-foreground">Don't Optimize</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">Disable optimization</div>
-                  </button>
-                  <button
-                    onClick={() => handleOptimizationTypeSelect('custom')}
-                    className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
-                  >
-                    <div className="font-medium text-card-foreground">Create Your Own</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">Build custom rules</div>
-                  </button>
-                </div>
-              </PopoverContent>
-            </Popover>
+        <div className="bg-card rounded-lg shadow-sm p-6 border border-border">
+          <div className="mb-6">
+            <h3 className="text-base font-semibold text-card-foreground mb-2">CAMPAIGN SETTINGS</h3>
+            <p className="text-sm text-muted-foreground">
+              Set the budget, bidding strategy, and other core settings for your new campaigns.
+            </p>
           </div>
 
-          {(campaignCreationOptimizations?.length || 0) > 0 ? (
-            <div className="border border-border rounded-lg overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-muted/30">
-                  <tr className="border-b border-border">
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide w-8"></th>
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Title</th>
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Action</th>
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Condition</th>
-                    <th className="w-12"></th>
-                  </tr>
-                </thead>
-                <tbody className="bg-card">
-                  {campaignCreationOptimizations?.map((opt, index) => (
-                    <tr key={opt.id} className="border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors group">
-                      <td className="py-3 px-4">
-                        <div className="flex items-center gap-2">
-                          <button 
-                            onClick={() => moveOptimizationUp(index)}
-                            disabled={index === 0}
-                            className="text-muted-foreground hover:text-card-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                          >
-                            <CaretUp size={14} weight="bold" />
-                          </button>
-                          <span className="text-sm font-medium text-card-foreground">{opt.id}.</span>
-                          <button 
-                            onClick={() => moveOptimizationDown(index)}
-                            disabled={index === (campaignCreationOptimizations?.length || 0) - 1}
-                            className="text-muted-foreground hover:text-card-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                          >
-                            <CaretDown size={14} weight="bold" />
-                          </button>
-                        </div>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="text-sm text-primary font-medium">{opt.title}</span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="text-sm text-foreground">{opt.action}</span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="text-sm text-foreground">{opt.condition}</span>
-                      </td>
-                      <td className="py-3 px-4 text-right">
-                        <button 
-                          onClick={() => deleteOptimization(index)}
-                          className="text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100"
-                        >
-                          <Trash size={16} weight="regular" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div>
+              <Label className="text-sm font-medium text-card-foreground mb-2 block">Total Budget</Label>
+              <Input
+                value={campaignSettings.totalBudget}
+                onChange={(e) => updateSetting('totalBudget', e.target.value)}
+                className="bg-input border-border text-card-foreground"
+                placeholder="$0.00"
+              />
             </div>
-          ) : (
-            <div className="flex-1 flex items-center justify-center">
-              <div className="text-center py-16 text-sm text-muted-foreground border-2 border-dashed border-border rounded-lg w-full">
-                <Sparkle size={32} weight="regular" className="mx-auto mb-3 text-muted-foreground" />
-                <p className="font-medium text-card-foreground mb-1">No campaign creation rules yet</p>
-                <p>Click "Add Optimization" to create your first automation rule</p>
+
+            <div>
+              <Label className="text-sm font-medium text-card-foreground mb-2 block">Budget Per Campaign</Label>
+              <Input
+                value={campaignSettings.budgetPerCampaign}
+                onChange={(e) => updateSetting('budgetPerCampaign', e.target.value)}
+                className="bg-input border-border text-card-foreground"
+                placeholder="$0.00"
+              />
+            </div>
+
+            <div>
+              <Label className="text-sm font-medium text-card-foreground mb-2 block">Maximum Target Count</Label>
+              <Input
+                type="number"
+                value={campaignSettings.maxTargetCount}
+                onChange={(e) => updateSetting('maxTargetCount', e.target.value)}
+                className="bg-input border-border text-card-foreground"
+                placeholder="0"
+              />
+            </div>
+
+            <div>
+              <Label className="text-sm font-medium text-card-foreground mb-2 block">Bidding Strategy</Label>
+              <Select
+                value={campaignSettings.biddingStrategy}
+                onValueChange={(v) => updateSetting('biddingStrategy', v)}
+              >
+                <SelectTrigger className="bg-input border-border text-card-foreground">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="down-only">Down Only</SelectItem>
+                  <SelectItem value="up-and-down">Up and Down</SelectItem>
+                  <SelectItem value="fixed">Fixed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label className="text-sm font-medium text-card-foreground mb-2 block">Bid Calculation Method</Label>
+              <Select
+                value={campaignSettings.bidCalculationMethod}
+                onValueChange={(v) => updateSetting('bidCalculationMethod', v)}
+              >
+                <SelectTrigger className="bg-input border-border text-card-foreground">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cpc-7-days">CPC - 7 Days</SelectItem>
+                  <SelectItem value="cpc-14-days">CPC - 14 Days</SelectItem>
+                  <SelectItem value="cpc-30-days">CPC - 30 Days</SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
+                <Info size={14} weight="regular" />
+                <span>The bid that is calculated by the 'CPC - 7 Days' method will be used without change.</span>
               </div>
             </div>
-          )}
+
+            <div>
+              <Label className="text-sm font-medium text-card-foreground mb-3 block">
+                Bidding Adjustment: {campaignSettings.biddingAdjustment.toFixed(2)}%
+              </Label>
+              <div className="flex items-center gap-4">
+                <Slider
+                  value={[campaignSettings.biddingAdjustment]}
+                  onValueChange={(values) => updateSetting('biddingAdjustment', values[0])}
+                  min={-100}
+                  max={100}
+                  step={0.01}
+                  className="flex-1"
+                />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => updateSetting('biddingAdjustment', 0)}
+                  className="text-xs h-8 px-2"
+                >
+                  Reset
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <div className="flex justify-end items-center gap-4 pt-6 border-t border-border mt-6">
+        <Button
+          variant="ghost"
+          className="text-muted-foreground hover:text-card-foreground"
+        >
+          Cancel
+        </Button>
+        <Button
+          onClick={handleSave}
+          className="bg-primary hover:bg-accent text-primary-foreground text-sm font-semibold shadow-lg shadow-primary/20 transition-all active:scale-95"
+        >
+          Save Optimization
+        </Button>
       </div>
     </div>
   )
