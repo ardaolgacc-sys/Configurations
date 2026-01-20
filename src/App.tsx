@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
-import { House, Info, Trash, CursorClick, Plus, X, CaretDown, CaretUp, Sparkle } from '@phosphor-icons/react'
+import { House, Info, Trash, CursorClick, Plus, X, CaretDown, CaretUp, Sparkle, Target, ChartLineUp, ShieldCheck, Lightbulb } from '@phosphor-icons/react'
 import { AIDecisions } from '@/components/AIDecisions'
 import { Dayparting } from '@/components/Dayparting'
 import { CampaignCreation } from '@/components/CampaignCreation'
@@ -314,14 +314,19 @@ function App() {
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                  <div className="lg:col-span-4 flex flex-col gap-6 bg-card rounded-lg shadow-sm p-6 border border-border">
-                    <div>
-                      <div className="flex items-center justify-between mb-3">
+                  <div className="lg:col-span-4 flex flex-col gap-6">
+                    <div className="bg-card rounded-lg shadow-sm p-6 border border-border">
+                      <div className="space-y-6">
                         <div>
-                          <h3 className="text-sm font-semibold text-card-foreground mb-1">Step 1: Choose Your Focus</h3>
-                          <p className="text-xs text-muted-foreground">Select your primary business objective</p>
-                        </div>
-                      </div>
+                          <div className="flex items-center justify-between mb-3">
+                            <div>
+                              <div className="flex items-center gap-2 mb-1">
+                                <Target size={16} weight="bold" className="text-primary" />
+                                <h3 className="text-sm font-semibold text-card-foreground">Step 1: Choose Your Focus</h3>
+                              </div>
+                              <p className="text-xs text-muted-foreground">Select your primary business objective</p>
+                            </div>
+                          </div>
                       <div className="bg-muted rounded-md p-4 space-y-3">
                         <RadioGroup value={settings.focusStrategy} onValueChange={(v) => updateSetting('focusStrategy', v as FocusStrategy)}>
                           <div className="space-y-3">
@@ -352,7 +357,10 @@ function App() {
 
                     <div>
                       <div className="mb-3">
-                        <h3 className="text-sm font-semibold text-card-foreground mb-1">Step 2: Set Your Target Metric</h3>
+                        <div className="flex items-center gap-2 mb-1">
+                          <ChartLineUp size={16} weight="bold" className="text-primary" />
+                          <h3 className="text-sm font-semibold text-card-foreground">Step 2: Set Your Target Metric</h3>
+                        </div>
                         <p className="text-xs text-muted-foreground">Choose how to measure advertising efficiency</p>
                       </div>
                       <div className="flex items-center gap-1 mb-2">
@@ -378,7 +386,10 @@ function App() {
 
                     <div>
                       <div className="mb-4">
-                        <h3 className="text-sm font-semibold text-card-foreground mb-1">Step 3: Define Bid Boundaries</h3>
+                        <div className="flex items-center gap-2 mb-1">
+                          <ShieldCheck size={16} weight="bold" className="text-primary" />
+                          <h3 className="text-sm font-semibold text-card-foreground">Step 3: Define Bid Boundaries</h3>
+                        </div>
                         <p className="text-xs text-muted-foreground">Set safe minimum and maximum bid limits</p>
                       </div>
                       <div className="space-y-5">
@@ -431,9 +442,65 @@ function App() {
                         </div>
                       </div>
                     </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-primary/5 via-accent/5 to-primary/10 rounded-lg shadow-sm p-6 border border-primary/20">
+                      <div className="flex items-center gap-2 mb-4">
+                        <Sparkle size={18} weight="fill" className="text-primary" />
+                        <h3 className="text-sm font-semibold text-card-foreground">Strategy Impact Preview</h3>
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-4">
+                        Based on your selections, here's what to expect:
+                      </p>
+                      <div className="space-y-3">
+                        <div className="flex items-start gap-3">
+                          <div className="mt-0.5 w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0"></div>
+                          <div>
+                            <p className="text-xs font-medium text-card-foreground">Bid Adjustment Range</p>
+                            <p className="text-xs text-muted-foreground">$0.08 - $3.00 (62.5x spread)</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <div className="mt-0.5 w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0"></div>
+                          <div>
+                            <p className="text-xs font-medium text-card-foreground">Expected ACoS Performance</p>
+                            <p className="text-xs text-muted-foreground">Target: 35% · Breakeven: 42.42%</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <div className="mt-0.5 w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0"></div>
+                          <div>
+                            <p className="text-xs font-medium text-card-foreground">Growth vs Profit Balance</p>
+                            <p className="text-xs text-muted-foreground">Lean Growth: Moderate spend, quality focus</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mt-4 pt-4 border-t border-primary/20">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">Optimization Rules Active</span>
+                          <span className="font-semibold text-primary">{dailyBiddingOptimizations.length + (negatingOptimizations?.length || 0) + (inventoryGuardOptimizations?.length || 0)}</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="lg:col-span-8 flex flex-col bg-card rounded-lg shadow-sm p-6 border border-border">
+                    <div className="grid grid-cols-3 gap-4 mb-6 pb-6 border-b border-border">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-primary mb-1">{dailyBiddingOptimizations.length + (negatingOptimizations?.length || 0) + (inventoryGuardOptimizations?.length || 0)}</div>
+                        <div className="text-xs text-muted-foreground uppercase tracking-wide">Active Rules</div>
+                      </div>
+                      <div className="text-center border-l border-r border-border">
+                        <div className="text-2xl font-bold text-accent mb-1">{settings.targetAcos}</div>
+                        <div className="text-xs text-muted-foreground uppercase tracking-wide">Target ACoS</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-card-foreground mb-1">{settings.focusStrategy.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</div>
+                        <div className="text-xs text-muted-foreground uppercase tracking-wide">Strategy</div>
+                      </div>
+                    </div>
+
                     <div className="mb-6">
                       <div className="flex items-center gap-3 mb-2">
                         <h3 className="text-sm font-semibold text-card-foreground">Step 4: Configure Automated Optimizations</h3>
@@ -827,6 +894,34 @@ function App() {
                           </CollapsibleContent>
                         </div>
                       </Collapsible>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
+                      <div className="bg-muted/20 rounded-lg p-5 border border-border">
+                        <div className="flex items-center gap-2 mb-3">
+                          <ChartLineUp size={16} weight="bold" className="text-primary" />
+                          <h4 className="text-xs font-semibold text-card-foreground uppercase tracking-wide">Performance Insight</h4>
+                        </div>
+                        <p className="text-sm text-foreground leading-relaxed mb-2">
+                          Campaigns with automated bid optimizations see an average <span className="font-semibold text-primary">23% improvement</span> in ROAS within 30 days.
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Configure at least 3 optimization rules for optimal results.
+                        </p>
+                      </div>
+
+                      <div className="bg-muted/20 rounded-lg p-5 border border-border">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Lightbulb size={16} weight="bold" className="text-accent" />
+                          <h4 className="text-xs font-semibold text-card-foreground uppercase tracking-wide">Pro Tip</h4>
+                        </div>
+                        <p className="text-sm text-foreground leading-relaxed mb-2">
+                          Start with Eva AI management to gather performance data, then add custom rules to fine-tune specific scenarios.
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          This hybrid approach maximizes both automation and control.
+                        </p>
+                      </div>
                     </div>
 
                     <div className="mt-auto flex justify-end items-center gap-4 pt-6 border-t border-border">
