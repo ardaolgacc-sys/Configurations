@@ -1012,6 +1012,109 @@ function App() {
                   </div>
                 </div>
 
+                <div className="pl-11 mb-6">
+                  <div className="bg-gradient-to-br from-primary/5 to-accent/5 rounded-lg p-5 border border-primary/20">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Lightbulb size={18} weight="fill" className="text-primary" />
+                      <h4 className="text-sm font-semibold text-card-foreground">Quick Start Templates</h4>
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-4">
+                      Select a preset template to quickly configure common optimization scenarios. You can customize after applying.
+                    </p>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                      <button className="group bg-card hover:bg-accent/10 border-2 border-border hover:border-primary/40 rounded-lg p-4 text-left transition-all">
+                        <div className="flex items-start justify-between mb-2">
+                          <h5 className="text-sm font-semibold text-card-foreground group-hover:text-primary transition-colors">High ACoS Reduction</h5>
+                          <Badge variant="outline" className="text-xs bg-destructive/10 text-destructive border-destructive/30">Popular</Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground mb-3">
+                          Automatically decrease bids when ACoS exceeds your target threshold
+                        </p>
+                        <div className="flex items-center gap-2 text-xs">
+                          <span className="px-2 py-0.5 rounded bg-muted text-muted-foreground">ACoS &gt; Target</span>
+                          <span className="text-muted-foreground">→</span>
+                          <span className="px-2 py-0.5 rounded bg-primary/10 text-primary">Decrease Bid 5%</span>
+                        </div>
+                      </button>
+
+                      <button className="group bg-card hover:bg-accent/10 border-2 border-border hover:border-primary/40 rounded-lg p-4 text-left transition-all">
+                        <div className="flex items-start justify-between mb-2">
+                          <h5 className="text-sm font-semibold text-card-foreground group-hover:text-primary transition-colors">No Orders - Decrease</h5>
+                          <Badge variant="outline" className="text-xs bg-accent/10 text-accent border-accent/30">Common</Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground mb-3">
+                          Reduce spending on targets with high spend but no conversions
+                        </p>
+                        <div className="flex items-center gap-2 text-xs">
+                          <span className="px-2 py-0.5 rounded bg-muted text-muted-foreground">Spend &gt; $50 + 0 Orders</span>
+                          <span className="text-muted-foreground">→</span>
+                          <span className="px-2 py-0.5 rounded bg-primary/10 text-primary">Decrease Bid 20%</span>
+                        </div>
+                      </button>
+
+                      <button className="group bg-card hover:bg-accent/10 border-2 border-border hover:border-primary/40 rounded-lg p-4 text-left transition-all">
+                        <div className="flex items-start justify-between mb-2">
+                          <h5 className="text-sm font-semibold text-card-foreground group-hover:text-primary transition-colors">Low ROAS Alert</h5>
+                          <Badge variant="outline" className="text-xs bg-muted text-muted-foreground border-border">Recommended</Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground mb-3">
+                          Pause campaigns when return on ad spend falls below threshold
+                        </p>
+                        <div className="flex items-center gap-2 text-xs">
+                          <span className="px-2 py-0.5 rounded bg-muted text-muted-foreground">ROAS &lt; 1.5</span>
+                          <span className="text-muted-foreground">→</span>
+                          <span className="px-2 py-0.5 rounded bg-primary/10 text-primary">Pause Campaign</span>
+                        </div>
+                      </button>
+
+                      <button className="group bg-card hover:bg-accent/10 border-2 border-border hover:border-primary/40 rounded-lg p-4 text-left transition-all">
+                        <div className="flex items-start justify-between mb-2">
+                          <h5 className="text-sm font-semibold text-card-foreground group-hover:text-primary transition-colors">High Performance Boost</h5>
+                          <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/30">Growth</Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground mb-3">
+                          Increase bids on high-converting targets to capture more sales
+                        </p>
+                        <div className="flex items-center gap-2 text-xs">
+                          <span className="px-2 py-0.5 rounded bg-muted text-muted-foreground">ACoS &lt; 20% + Orders &gt; 5</span>
+                          <span className="text-muted-foreground">→</span>
+                          <span className="px-2 py-0.5 rounded bg-primary/10 text-primary">Increase Bid 10%</span>
+                        </div>
+                      </button>
+
+                      <button className="group bg-card hover:bg-accent/10 border-2 border-border hover:border-primary/40 rounded-lg p-4 text-left transition-all">
+                        <div className="flex items-start justify-between mb-2">
+                          <h5 className="text-sm font-semibold text-card-foreground group-hover:text-primary transition-colors">Revive Stale Targets</h5>
+                          <Badge variant="outline" className="text-xs bg-muted text-muted-foreground border-border">Recovery</Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground mb-3">
+                          Boost bids for targets with good history but recent low activity
+                        </p>
+                        <div className="flex items-center gap-2 text-xs">
+                          <span className="px-2 py-0.5 rounded bg-muted text-muted-foreground">Clicks &lt; 10 (14d)</span>
+                          <span className="text-muted-foreground">→</span>
+                          <span className="px-2 py-0.5 rounded bg-primary/10 text-primary">Increase Bid 10%</span>
+                        </div>
+                      </button>
+
+                      <button className="group bg-card hover:bg-accent/10 border-2 border-border hover:border-primary/40 rounded-lg p-4 text-left transition-all">
+                        <div className="flex items-start justify-between mb-2">
+                          <h5 className="text-sm font-semibold text-card-foreground group-hover:text-primary transition-colors">Budget Overspend Guard</h5>
+                          <Badge variant="outline" className="text-xs bg-destructive/10 text-destructive border-destructive/30">Protection</Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground mb-3">
+                          Protect budgets by reducing bids when spend exceeds daily limits
+                        </p>
+                        <div className="flex items-center gap-2 text-xs">
+                          <span className="px-2 py-0.5 rounded bg-muted text-muted-foreground">Spend &gt; Daily Budget</span>
+                          <span className="text-muted-foreground">→</span>
+                          <span className="px-2 py-0.5 rounded bg-primary/10 text-primary">Decrease Bid 10%</span>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="space-y-4 pl-11">
                   <div className="bg-card rounded-lg p-6 border-2 border-border shadow-sm">
                     <div className="flex items-center justify-between mb-5">
