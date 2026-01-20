@@ -970,7 +970,7 @@ function App() {
       </div>
 
       <Dialog open={dailyBiddingDialogOpen} onOpenChange={setDailyBiddingDialogOpen}>
-        <DialogContent className="max-w-[1400px] max-h-[90vh] overflow-hidden bg-card flex flex-col">
+        <DialogContent className="max-w-[2100px] max-h-[90vh] overflow-hidden bg-card flex flex-col">
           <DialogHeader className="pb-4 border-b border-border">
             <DialogTitle className="text-xl font-semibold text-card-foreground">Custom Optimization Builder</DialogTitle>
             <p className="text-sm text-muted-foreground mt-2">
