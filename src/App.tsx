@@ -16,6 +16,7 @@ import { AIDecisions } from '@/components/AIDecisions'
 import { Dayparting } from '@/components/Dayparting'
 import { CampaignCreation } from '@/components/CampaignCreation'
 import { Onboarding, CampaignScope } from '@/components/Onboarding'
+import { OptimizationBuilder } from '@/components/OptimizationBuilder'
 
 type OptimizationType = 'eva-ai' | 'dont-optimize' | 'custom'
 
@@ -89,6 +90,7 @@ function App() {
   const [currentOptimizationSection, setCurrentOptimizationSection] = useState<'daily-bidding' | 'inventory-guard' | 'negating' | 'campaign-creation' | null>(null)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [showOptimizationBuilder, setShowOptimizationBuilder] = useState(false)
+  const [builderSelectedScopes, setBuilderSelectedScopes] = useState<CampaignScope[]>([])
 
   useEffect(() => {
     if (!onboardingComplete) {
@@ -235,12 +237,33 @@ function App() {
     } else if (type === 'custom') {
       setCurrentOptimizationSection(section)
       setShowOptimizationBuilder(true)
+      setBuilderSelectedScopes(selectedScopes || [])
+      
+      setDailyBiddingOpen(section === 'daily-bidding')
+      setInventoryGuardOpen(section === 'inventory-guard')
+      setNegatingOpen(section === 'negating')
     }
   }
 
   const handleBackToSettings = () => {
     setShowOptimizationBuilder(false)
     setCurrentOptimizationSection(null)
+    setBuilderSelectedScopes([])
+  }
+
+  const toggleBuilderScope = (id: string) => {
+    setBuilderSelectedScopes((current) => 
+      current.map(scope => 
+        scope.id === id ? { ...scope, selected: !scope.selected } : scope
+      )
+    )
+  }
+
+  const handleSelectAllBuilderScopes = () => {
+    const allSelected = builderSelectedScopes.every(s => s.selected)
+    setBuilderSelectedScopes((current) => 
+      current.map(scope => ({ ...scope, selected: !allSelected }))
+    )
   }
 
   return (
@@ -586,62 +609,73 @@ function App() {
                             </div>
                           </CollapsibleTrigger>
                           <CollapsibleContent>
-                            <div className="px-4 pb-4">
-                              <div className="border border-border rounded-lg overflow-hidden">
-                                <table className="w-full">
-                                  <thead className="bg-muted/30">
-                                    <tr className="border-b border-border">
-                                      <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide w-8"></th>
-                                      <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Title</th>
-                                      <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Action</th>
-                                      <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Condition</th>
-                                      <th className="w-12"></th>
-                                    </tr>
-                                  </thead>
-                                  <tbody className="bg-card">
-                                    {dailyBiddingOptimizations.map((opt, index) => (
-                                      <tr key={opt.id} className="border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors group">
-                                        <td className="py-3 px-4">
-                                          <div className="flex items-center gap-2">
-                                            <button 
-                                              onClick={() => moveOptimizationUp(index, 'daily-bidding')}
-                                              disabled={index === 0}
-                                              className="text-muted-foreground hover:text-card-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                                            >
-                                              <CaretUp size={14} weight="bold" />
-                                            </button>
-                                            <span className="text-sm font-medium text-card-foreground">{opt.id}.</span>
-                                            <button 
-                                              onClick={() => moveOptimizationDown(index, 'daily-bidding')}
-                                              disabled={index === dailyBiddingOptimizations.length - 1}
-                                              className="text-muted-foreground hover:text-card-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                                            >
-                                              <CaretDown size={14} weight="bold" />
-                                            </button>
-                                          </div>
-                                        </td>
-                                        <td className="py-3 px-4">
-                                          <span className="text-sm text-primary font-medium">{opt.title}</span>
-                                        </td>
-                                        <td className="py-3 px-4">
-                                          <span className="text-sm text-foreground">{opt.action}</span>
-                                        </td>
-                                        <td className="py-3 px-4">
-                                          <span className="text-sm text-foreground">{opt.condition}</span>
-                                        </td>
-                                        <td className="py-3 px-4 text-right">
-                                          <button 
-                                            onClick={() => deleteOptimization(index, 'daily-bidding')}
-                                            className="text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100"
-                                          >
-                                            <Trash size={16} weight="regular" />
-                                          </button>
-                                        </td>
+                            <div className="px-4 pb-4 space-y-4">
+                              {showOptimizationBuilder && currentOptimizationSection === 'daily-bidding' ? (
+                                <OptimizationBuilder
+                                  section="daily-bidding"
+                                  scopes={builderSelectedScopes}
+                                  onBack={handleBackToSettings}
+                                  onSave={handleBackToSettings}
+                                  onToggleScope={toggleBuilderScope}
+                                  onSelectAllScopes={handleSelectAllBuilderScopes}
+                                />
+                              ) : (
+                                <div className="border border-border rounded-lg overflow-hidden">
+                                  <table className="w-full">
+                                    <thead className="bg-muted/30">
+                                      <tr className="border-b border-border">
+                                        <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide w-8"></th>
+                                        <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Title</th>
+                                        <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Action</th>
+                                        <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Condition</th>
+                                        <th className="w-12"></th>
                                       </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                              </div>
+                                    </thead>
+                                    <tbody className="bg-card">
+                                      {dailyBiddingOptimizations.map((opt, index) => (
+                                        <tr key={opt.id} className="border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors group">
+                                          <td className="py-3 px-4">
+                                            <div className="flex items-center gap-2">
+                                              <button 
+                                                onClick={() => moveOptimizationUp(index, 'daily-bidding')}
+                                                disabled={index === 0}
+                                                className="text-muted-foreground hover:text-card-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                              >
+                                                <CaretUp size={14} weight="bold" />
+                                              </button>
+                                              <span className="text-sm font-medium text-card-foreground">{opt.id}.</span>
+                                              <button 
+                                                onClick={() => moveOptimizationDown(index, 'daily-bidding')}
+                                                disabled={index === dailyBiddingOptimizations.length - 1}
+                                                className="text-muted-foreground hover:text-card-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                              >
+                                                <CaretDown size={14} weight="bold" />
+                                              </button>
+                                            </div>
+                                          </td>
+                                          <td className="py-3 px-4">
+                                            <span className="text-sm text-primary font-medium">{opt.title}</span>
+                                          </td>
+                                          <td className="py-3 px-4">
+                                            <span className="text-sm text-foreground">{opt.action}</span>
+                                          </td>
+                                          <td className="py-3 px-4">
+                                            <span className="text-sm text-foreground">{opt.condition}</span>
+                                          </td>
+                                          <td className="py-3 px-4 text-right">
+                                            <button 
+                                              onClick={() => deleteOptimization(index, 'daily-bidding')}
+                                              className="text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100"
+                                            >
+                                              <Trash size={16} weight="regular" />
+                                            </button>
+                                          </td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              )}
                             </div>
                           </CollapsibleContent>
                         </div>
@@ -707,67 +741,80 @@ function App() {
                             </div>
                           </CollapsibleTrigger>
                           <CollapsibleContent>
-                            <div className="px-4 pb-4">
-                              {(negatingOptimizations?.length || 0) > 0 ? (
-                                <div className="border border-border rounded-lg overflow-hidden">
-                                  <table className="w-full">
-                                    <thead className="bg-muted/30">
-                                      <tr className="border-b border-border">
-                                        <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide w-8"></th>
-                                        <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Title</th>
-                                        <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Action</th>
-                                        <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Condition</th>
-                                        <th className="w-12"></th>
-                                      </tr>
-                                    </thead>
-                                    <tbody className="bg-card">
-                                      {negatingOptimizations?.map((opt, index) => (
-                                        <tr key={opt.id} className="border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors group">
-                                          <td className="py-3 px-4">
-                                            <div className="flex items-center gap-2">
-                                              <button 
-                                                onClick={() => moveOptimizationUp(index, 'negating')}
-                                                disabled={index === 0}
-                                                className="text-muted-foreground hover:text-card-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                                              >
-                                                <CaretUp size={14} weight="bold" />
-                                              </button>
-                                              <span className="text-sm font-medium text-card-foreground">{opt.id}.</span>
-                                              <button 
-                                                onClick={() => moveOptimizationDown(index, 'negating')}
-                                                disabled={index === (negatingOptimizations?.length || 0) - 1}
-                                                className="text-muted-foreground hover:text-card-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                                              >
-                                                <CaretDown size={14} weight="bold" />
-                                              </button>
-                                            </div>
-                                          </td>
-                                          <td className="py-3 px-4">
-                                            <span className="text-sm text-primary font-medium">{opt.title}</span>
-                                          </td>
-                                          <td className="py-3 px-4">
-                                            <span className="text-sm text-foreground">{opt.action}</span>
-                                          </td>
-                                          <td className="py-3 px-4">
-                                            <span className="text-sm text-foreground">{opt.condition}</span>
-                                          </td>
-                                          <td className="py-3 px-4 text-right">
-                                            <button 
-                                              onClick={() => deleteOptimization(index, 'negating')}
-                                              className="text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100"
-                                            >
-                                              <Trash size={16} weight="regular" />
-                                            </button>
-                                          </td>
-                                        </tr>
-                                      ))}
-                                    </tbody>
-                                  </table>
-                                </div>
+                            <div className="px-4 pb-4 space-y-4">
+                              {showOptimizationBuilder && currentOptimizationSection === 'negating' ? (
+                                <OptimizationBuilder
+                                  section="negating"
+                                  scopes={builderSelectedScopes}
+                                  onBack={handleBackToSettings}
+                                  onSave={handleBackToSettings}
+                                  onToggleScope={toggleBuilderScope}
+                                  onSelectAllScopes={handleSelectAllBuilderScopes}
+                                />
                               ) : (
-                                <div className="text-center py-8 text-sm text-muted-foreground">
-                                  No optimizations configured yet. Click "Add Optimization" to create one.
-                                </div>
+                                <>
+                                  {(negatingOptimizations?.length || 0) > 0 ? (
+                                    <div className="border border-border rounded-lg overflow-hidden">
+                                      <table className="w-full">
+                                        <thead className="bg-muted/30">
+                                          <tr className="border-b border-border">
+                                            <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide w-8"></th>
+                                            <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Title</th>
+                                            <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Action</th>
+                                            <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Condition</th>
+                                            <th className="w-12"></th>
+                                          </tr>
+                                        </thead>
+                                        <tbody className="bg-card">
+                                          {negatingOptimizations?.map((opt, index) => (
+                                            <tr key={opt.id} className="border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors group">
+                                              <td className="py-3 px-4">
+                                                <div className="flex items-center gap-2">
+                                                  <button 
+                                                    onClick={() => moveOptimizationUp(index, 'negating')}
+                                                    disabled={index === 0}
+                                                    className="text-muted-foreground hover:text-card-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                                  >
+                                                    <CaretUp size={14} weight="bold" />
+                                                  </button>
+                                                  <span className="text-sm font-medium text-card-foreground">{opt.id}.</span>
+                                                  <button 
+                                                    onClick={() => moveOptimizationDown(index, 'negating')}
+                                                    disabled={index === (negatingOptimizations?.length || 0) - 1}
+                                                    className="text-muted-foreground hover:text-card-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                                  >
+                                                    <CaretDown size={14} weight="bold" />
+                                                  </button>
+                                                </div>
+                                              </td>
+                                              <td className="py-3 px-4">
+                                                <span className="text-sm text-primary font-medium">{opt.title}</span>
+                                              </td>
+                                              <td className="py-3 px-4">
+                                                <span className="text-sm text-foreground">{opt.action}</span>
+                                              </td>
+                                              <td className="py-3 px-4">
+                                                <span className="text-sm text-foreground">{opt.condition}</span>
+                                              </td>
+                                              <td className="py-3 px-4 text-right">
+                                                <button 
+                                                  onClick={() => deleteOptimization(index, 'negating')}
+                                                  className="text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100"
+                                                >
+                                                  <Trash size={16} weight="regular" />
+                                                </button>
+                                              </td>
+                                            </tr>
+                                          ))}
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                  ) : (
+                                    <div className="text-center py-8 text-sm text-muted-foreground">
+                                      No optimizations configured yet. Click "Add Optimization" to create one.
+                                    </div>
+                                  )}
+                                </>
                               )}
                             </div>
                           </CollapsibleContent>
@@ -834,67 +881,80 @@ function App() {
                             </div>
                           </CollapsibleTrigger>
                           <CollapsibleContent>
-                            <div className="px-4 pb-4">
-                              {(inventoryGuardOptimizations?.length || 0) > 0 ? (
-                                <div className="border border-border rounded-lg overflow-hidden">
-                                  <table className="w-full">
-                                    <thead className="bg-muted/30">
-                                      <tr className="border-b border-border">
-                                        <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide w-8"></th>
-                                        <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Title</th>
-                                        <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Action</th>
-                                        <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Condition</th>
-                                        <th className="w-12"></th>
-                                      </tr>
-                                    </thead>
-                                    <tbody className="bg-card">
-                                      {inventoryGuardOptimizations?.map((opt, index) => (
-                                        <tr key={opt.id} className="border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors group">
-                                          <td className="py-3 px-4">
-                                            <div className="flex items-center gap-2">
-                                              <button 
-                                                onClick={() => moveOptimizationUp(index, 'inventory-guard')}
-                                                disabled={index === 0}
-                                                className="text-muted-foreground hover:text-card-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                                              >
-                                                <CaretUp size={14} weight="bold" />
-                                              </button>
-                                              <span className="text-sm font-medium text-card-foreground">{opt.id}.</span>
-                                              <button 
-                                                onClick={() => moveOptimizationDown(index, 'inventory-guard')}
-                                                disabled={index === (inventoryGuardOptimizations?.length || 0) - 1}
-                                                className="text-muted-foreground hover:text-card-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                                              >
-                                                <CaretDown size={14} weight="bold" />
-                                              </button>
-                                            </div>
-                                          </td>
-                                          <td className="py-3 px-4">
-                                            <span className="text-sm text-primary font-medium">{opt.title}</span>
-                                          </td>
-                                          <td className="py-3 px-4">
-                                            <span className="text-sm text-foreground">{opt.action}</span>
-                                          </td>
-                                          <td className="py-3 px-4">
-                                            <span className="text-sm text-foreground">{opt.condition}</span>
-                                          </td>
-                                          <td className="py-3 px-4 text-right">
-                                            <button 
-                                              onClick={() => deleteOptimization(index, 'inventory-guard')}
-                                              className="text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100"
-                                            >
-                                              <Trash size={16} weight="regular" />
-                                            </button>
-                                          </td>
-                                        </tr>
-                                      ))}
-                                    </tbody>
-                                  </table>
-                                </div>
+                            <div className="px-4 pb-4 space-y-4">
+                              {showOptimizationBuilder && currentOptimizationSection === 'inventory-guard' ? (
+                                <OptimizationBuilder
+                                  section="inventory-guard"
+                                  scopes={builderSelectedScopes}
+                                  onBack={handleBackToSettings}
+                                  onSave={handleBackToSettings}
+                                  onToggleScope={toggleBuilderScope}
+                                  onSelectAllScopes={handleSelectAllBuilderScopes}
+                                />
                               ) : (
-                                <div className="text-center py-8 text-sm text-muted-foreground">
-                                  No optimizations configured yet. Click "Add Optimization" to create one.
-                                </div>
+                                <>
+                                  {(inventoryGuardOptimizations?.length || 0) > 0 ? (
+                                    <div className="border border-border rounded-lg overflow-hidden">
+                                      <table className="w-full">
+                                        <thead className="bg-muted/30">
+                                          <tr className="border-b border-border">
+                                            <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide w-8"></th>
+                                            <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Title</th>
+                                            <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Action</th>
+                                            <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Condition</th>
+                                            <th className="w-12"></th>
+                                          </tr>
+                                        </thead>
+                                        <tbody className="bg-card">
+                                          {inventoryGuardOptimizations?.map((opt, index) => (
+                                            <tr key={opt.id} className="border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors group">
+                                              <td className="py-3 px-4">
+                                                <div className="flex items-center gap-2">
+                                                  <button 
+                                                    onClick={() => moveOptimizationUp(index, 'inventory-guard')}
+                                                    disabled={index === 0}
+                                                    className="text-muted-foreground hover:text-card-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                                  >
+                                                    <CaretUp size={14} weight="bold" />
+                                                  </button>
+                                                  <span className="text-sm font-medium text-card-foreground">{opt.id}.</span>
+                                                  <button 
+                                                    onClick={() => moveOptimizationDown(index, 'inventory-guard')}
+                                                    disabled={index === (inventoryGuardOptimizations?.length || 0) - 1}
+                                                    className="text-muted-foreground hover:text-card-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                                  >
+                                                    <CaretDown size={14} weight="bold" />
+                                                  </button>
+                                                </div>
+                                              </td>
+                                              <td className="py-3 px-4">
+                                                <span className="text-sm text-primary font-medium">{opt.title}</span>
+                                              </td>
+                                              <td className="py-3 px-4">
+                                                <span className="text-sm text-foreground">{opt.action}</span>
+                                              </td>
+                                              <td className="py-3 px-4">
+                                                <span className="text-sm text-foreground">{opt.condition}</span>
+                                              </td>
+                                              <td className="py-3 px-4 text-right">
+                                                <button 
+                                                  onClick={() => deleteOptimization(index, 'inventory-guard')}
+                                                  className="text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100"
+                                                >
+                                                  <Trash size={16} weight="regular" />
+                                                </button>
+                                              </td>
+                                            </tr>
+                                          ))}
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                  ) : (
+                                    <div className="text-center py-8 text-sm text-muted-foreground">
+                                      No optimizations configured yet. Click "Add Optimization" to create one.
+                                    </div>
+                                  )}
+                                </>
                               )}
                             </div>
                           </CollapsibleContent>
