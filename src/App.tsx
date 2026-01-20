@@ -10,9 +10,43 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { toast } from 'sonner'
-import { House, Info, Trash, CursorClick, Plus, X, CaretDown } from '@phosphor-icons/react'
+import { House, Info, Trash, CursorClick, Plus, X, CaretDown, CaretUp } from '@phosphor-icons/react'
 import { AIDecisions } from '@/components/AIDecisions'
 import { Dayparting } from '@/components/Dayparting'
+
+interface Optimization {
+  id: string
+  title: string
+  action: string
+  condition: string
+}
+
+const DAILY_BIDDING_OPTIMIZATIONS: Optimization[] = [
+  {
+    id: '1',
+    title: 'Daily Bid - Decrease - No Order',
+    action: 'Decrease the bid of the Target by 20% (r...',
+    condition: 'Spend of the Target in the last 30 days ...'
+  },
+  {
+    id: '2',
+    title: 'Daily Bid - Decrease | High ACoS',
+    action: 'Decrease the bid of the Target by 5% (ra...',
+    condition: 'ACoS of the Target in the last 14 days i...'
+  },
+  {
+    id: '3',
+    title: 'Daily Bid - Revive',
+    action: 'Increase the bid of the Target by 10% (r...',
+    condition: 'Clicks of the Target in the last 14 days...'
+  },
+  {
+    id: '4',
+    title: 'Fail Safe - Bid Control',
+    action: 'Decrease the bid of the Target by 10% (r...',
+    condition: 'Spend of the Target in the last 14 days ...'
+  }
+]
 
 type FocusStrategy = 'growth-focused' | 'lean-growth' | 'balanced' | 'lean-profit' | 'profit-focused'
 type TargetType = 'acos' | 'tacos'
@@ -23,10 +57,6 @@ interface StoreSettings {
   minBid: string
   maxBid: string
   targetAcos: string
-  dailyBidding: string
-  inventoryGuard: string
-  campaignCreation: string
-  negating: string
 }
 
 const defaultSettings: StoreSettings = {
@@ -34,11 +64,7 @@ const defaultSettings: StoreSettings = {
   targetType: 'acos',
   minBid: '$0.08',
   maxBid: '$3.00',
-  targetAcos: '35.00%',
-  dailyBidding: 'Smart Bid Optimizer',
-  inventoryGuard: "Don't Optimize",
-  campaignCreation: "Don't Optimize",
-  negating: 'Negation'
+  targetAcos: '35.00%'
 }
 
 function App() {
@@ -56,10 +82,6 @@ function App() {
 
   const updateSetting = <K extends keyof StoreSettings>(key: K, value: StoreSettings[K]) => {
     setSettings((current) => ({ ...current!, [key]: value }))
-    
-    if (key === 'dailyBidding' && value === 'Custom Optimization') {
-      setDailyBiddingDialogOpen(true)
-    }
   }
 
   const handleClear = () => {
@@ -247,104 +269,205 @@ function App() {
                     
                     <div className="space-y-4 mb-8">
                       <Collapsible open={dailyBiddingOpen} onOpenChange={setDailyBiddingOpen}>
-                        <div className="border border-border rounded-lg">
+                        <div className="border border-border rounded-lg bg-card">
                           <CollapsibleTrigger className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
-                            <div className="flex items-center gap-2">
-                              <Label className="text-sm font-medium text-card-foreground cursor-pointer">Daily Bidding</Label>
-                              <Info size={14} weight="regular" className="text-muted-foreground cursor-help" />
+                            <div className="flex items-center gap-3">
+                              <Label className="text-sm font-medium text-card-foreground cursor-pointer">Daily Bid Optimizations</Label>
+                              <div className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                                {DAILY_BIDDING_OPTIMIZATIONS.length} added
+                              </div>
                             </div>
-                            <CaretDown size={20} weight="bold" className={`text-muted-foreground transition-transform ${dailyBiddingOpen ? 'rotate-180' : ''}`} />
+                            <div className="flex items-center gap-3">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-xs text-muted-foreground hover:text-primary h-7 px-2"
+                              >
+                                See all
+                              </Button>
+                              <Button
+                                size="sm"
+                                className="bg-primary hover:bg-accent text-primary-foreground h-7 px-3 text-xs font-semibold shadow-sm"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setDailyBiddingDialogOpen(true)
+                                }}
+                              >
+                                <Plus size={14} weight="regular" className="mr-1" />
+                                Add Optimization
+                              </Button>
+                              <CaretDown size={20} weight="bold" className={`text-muted-foreground transition-transform ${dailyBiddingOpen ? 'rotate-180' : ''}`} />
+                            </div>
                           </CollapsibleTrigger>
                           <CollapsibleContent>
-                            <div className="p-4 pt-0">
-                              <Select value={settings.dailyBidding} onValueChange={(v) => updateSetting('dailyBidding', v)}>
-                                <SelectTrigger className="bg-input border-border text-card-foreground font-medium">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="Smart Bid Optimizer">Smart Bid Optimizer</SelectItem>
-                                  <SelectItem value="Custom Optimization">Custom Optimization</SelectItem>
-                                  <SelectItem value="Optimized by Eva AI">Optimized by Eva AI</SelectItem>
-                                  <SelectItem value="Don't Optimize">Don't Optimize</SelectItem>
-                                </SelectContent>
-                              </Select>
+                            <div className="px-4 pb-4">
+                              <div className="border border-border rounded-lg overflow-hidden">
+                                <table className="w-full">
+                                  <thead className="bg-muted/30">
+                                    <tr className="border-b border-border">
+                                      <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide w-8"></th>
+                                      <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Title</th>
+                                      <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Action</th>
+                                      <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Condition</th>
+                                      <th className="w-12"></th>
+                                    </tr>
+                                  </thead>
+                                  <tbody className="bg-card">
+                                    {DAILY_BIDDING_OPTIMIZATIONS.map((opt) => (
+                                      <tr key={opt.id} className="border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors group">
+                                        <td className="py-3 px-4">
+                                          <div className="flex items-center gap-2">
+                                            <button className="text-muted-foreground hover:text-card-foreground transition-colors">
+                                              <CaretUp size={14} weight="bold" />
+                                            </button>
+                                            <span className="text-sm font-medium text-card-foreground">{opt.id}.</span>
+                                            <button className="text-muted-foreground hover:text-card-foreground transition-colors">
+                                              <CaretDown size={14} weight="bold" />
+                                            </button>
+                                          </div>
+                                        </td>
+                                        <td className="py-3 px-4">
+                                          <span className="text-sm text-primary font-medium">{opt.title}</span>
+                                        </td>
+                                        <td className="py-3 px-4">
+                                          <span className="text-sm text-foreground">{opt.action}</span>
+                                        </td>
+                                        <td className="py-3 px-4">
+                                          <span className="text-sm text-foreground">{opt.condition}</span>
+                                        </td>
+                                        <td className="py-3 px-4 text-right">
+                                          <button className="text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100">
+                                            <Trash size={16} weight="regular" />
+                                          </button>
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
                             </div>
                           </CollapsibleContent>
                         </div>
                       </Collapsible>
 
                       <Collapsible open={inventoryGuardOpen} onOpenChange={setInventoryGuardOpen}>
-                        <div className="border border-border rounded-lg">
+                        <div className="border border-border rounded-lg bg-card">
                           <CollapsibleTrigger className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-3">
                               <Label className="text-sm font-medium text-card-foreground cursor-pointer">Inventory & Performance Guard</Label>
-                              <Info size={14} weight="regular" className="text-muted-foreground cursor-help" />
+                              <div className="px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-xs font-medium">
+                                0 added
+                              </div>
                             </div>
-                            <CaretDown size={20} weight="bold" className={`text-muted-foreground transition-transform ${inventoryGuardOpen ? 'rotate-180' : ''}`} />
+                            <div className="flex items-center gap-3">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-xs text-muted-foreground hover:text-primary h-7 px-2"
+                              >
+                                See all
+                              </Button>
+                              <Button
+                                size="sm"
+                                className="bg-primary hover:bg-accent text-primary-foreground h-7 px-3 text-xs font-semibold shadow-sm"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  toast.info('Create inventory guard optimization')
+                                }}
+                              >
+                                <Plus size={14} weight="regular" className="mr-1" />
+                                Add Optimization
+                              </Button>
+                              <CaretDown size={20} weight="bold" className={`text-muted-foreground transition-transform ${inventoryGuardOpen ? 'rotate-180' : ''}`} />
+                            </div>
                           </CollapsibleTrigger>
                           <CollapsibleContent>
-                            <div className="p-4 pt-0">
-                              <Select value={settings.inventoryGuard} onValueChange={(v) => updateSetting('inventoryGuard', v)}>
-                                <SelectTrigger className="bg-input border-border text-card-foreground font-medium">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="Don't Optimize">Don't Optimize</SelectItem>
-                                  <SelectItem value="Monitor Inventory">Monitor Inventory</SelectItem>
-                                  <SelectItem value="Auto-Adjust for Stock">Auto-Adjust for Stock</SelectItem>
-                                </SelectContent>
-                              </Select>
+                            <div className="px-4 pb-4">
+                              <div className="text-center py-8 text-sm text-muted-foreground">
+                                No optimizations configured yet. Click "Add Optimization" to create one.
+                              </div>
                             </div>
                           </CollapsibleContent>
                         </div>
                       </Collapsible>
 
                       <Collapsible open={campaignCreationOpen} onOpenChange={setCampaignCreationOpen}>
-                        <div className="border border-border rounded-lg">
+                        <div className="border border-border rounded-lg bg-card">
                           <CollapsibleTrigger className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-3">
                               <Label className="text-sm font-medium text-card-foreground cursor-pointer">Campaign Creation</Label>
-                              <Info size={14} weight="regular" className="text-muted-foreground cursor-help" />
+                              <div className="px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-xs font-medium">
+                                0 added
+                              </div>
                             </div>
-                            <CaretDown size={20} weight="bold" className={`text-muted-foreground transition-transform ${campaignCreationOpen ? 'rotate-180' : ''}`} />
+                            <div className="flex items-center gap-3">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-xs text-muted-foreground hover:text-primary h-7 px-2"
+                              >
+                                See all
+                              </Button>
+                              <Button
+                                size="sm"
+                                className="bg-primary hover:bg-accent text-primary-foreground h-7 px-3 text-xs font-semibold shadow-sm"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  toast.info('Create campaign creation optimization')
+                                }}
+                              >
+                                <Plus size={14} weight="regular" className="mr-1" />
+                                Add Optimization
+                              </Button>
+                              <CaretDown size={20} weight="bold" className={`text-muted-foreground transition-transform ${campaignCreationOpen ? 'rotate-180' : ''}`} />
+                            </div>
                           </CollapsibleTrigger>
                           <CollapsibleContent>
-                            <div className="p-4 pt-0">
-                              <Select value={settings.campaignCreation} onValueChange={(v) => updateSetting('campaignCreation', v)}>
-                                <SelectTrigger className="bg-input border-border text-card-foreground font-medium">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="Don't Optimize">Don't Optimize</SelectItem>
-                                  <SelectItem value="Auto-Create Campaigns">Auto-Create Campaigns</SelectItem>
-                                </SelectContent>
-                              </Select>
+                            <div className="px-4 pb-4">
+                              <div className="text-center py-8 text-sm text-muted-foreground">
+                                No optimizations configured yet. Click "Add Optimization" to create one.
+                              </div>
                             </div>
                           </CollapsibleContent>
                         </div>
                       </Collapsible>
 
                       <Collapsible open={negatingOpen} onOpenChange={setNegatingOpen}>
-                        <div className="border border-border rounded-lg">
+                        <div className="border border-border rounded-lg bg-card">
                           <CollapsibleTrigger className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-3">
                               <Label className="text-sm font-medium text-card-foreground cursor-pointer">Negation</Label>
-                              <Info size={14} weight="regular" className="text-muted-foreground cursor-help" />
+                              <div className="px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-xs font-medium">
+                                0 added
+                              </div>
                             </div>
-                            <CaretDown size={20} weight="bold" className={`text-muted-foreground transition-transform ${negatingOpen ? 'rotate-180' : ''}`} />
+                            <div className="flex items-center gap-3">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-xs text-muted-foreground hover:text-primary h-7 px-2"
+                              >
+                                See all
+                              </Button>
+                              <Button
+                                size="sm"
+                                className="bg-primary hover:bg-accent text-primary-foreground h-7 px-3 text-xs font-semibold shadow-sm"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  toast.info('Create negation optimization')
+                                }}
+                              >
+                                <Plus size={14} weight="regular" className="mr-1" />
+                                Add Optimization
+                              </Button>
+                              <CaretDown size={20} weight="bold" className={`text-muted-foreground transition-transform ${negatingOpen ? 'rotate-180' : ''}`} />
+                            </div>
                           </CollapsibleTrigger>
                           <CollapsibleContent>
-                            <div className="p-4 pt-0">
-                              <Select value={settings.negating} onValueChange={(v) => updateSetting('negating', v)}>
-                                <SelectTrigger className="bg-input border-border text-card-foreground font-medium">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="Negation">Negation</SelectItem>
-                                  <SelectItem value="Don't Optimize">Don't Optimize</SelectItem>
-                                  <SelectItem value="Aggressive Negation">Aggressive Negation</SelectItem>
-                                </SelectContent>
-                              </Select>
+                            <div className="px-4 pb-4">
+                              <div className="text-center py-8 text-sm text-muted-foreground">
+                                No optimizations configured yet. Click "Add Optimization" to create one.
+                              </div>
                             </div>
                           </CollapsibleContent>
                         </div>
