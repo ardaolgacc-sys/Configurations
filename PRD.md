@@ -1,137 +1,215 @@
 # Planning Guide
 
-A configuration interface for managing advertising campaign optimization settings with focus controls, bid parameters, target types, and optimization options.
+A comprehensive advertising optimization platform featuring configuration management, goal tracking, and AI-powered decision monitoring for e-commerce campaigns.
 
-**Experience Qualities**:
-1. **Professional** - Clean, structured layout that communicates reliability and precision for ad campaign management
-2. **Efficient** - Streamlined single-page interface with clear sections and minimal navigation
-3. **Informative** - Rich tooltips and recommended values guide users to make optimal configuration choices
+**Experience Qualities**: 
+1. **Professional** - Conveys expertise and trustworthiness with precise typography, clear information hierarchy, and step-by-step guidance suitable for business decisions
+2. **Efficient** - Streamlines complex configuration tasks through intelligent grouping, collapsible sections, and tabbed navigation with minimal cognitive load
+3. **Transparent** - Provides complete visibility into AI-driven decisions with detailed tracking tables and actionable insights
 
 **Complexity Level**: Light Application (multiple features with basic state)
-This is a configuration form with multiple related settings, radio groups, dropdowns, and state persistence. The interface collects campaign optimization parameters without complex workflows or multiple views.
+A multi-tab configuration and monitoring interface with several interactive form controls, data tables, and navigation organized across three main sections: Store Settings, Goal Details, and AI Decisions.
 
 ## Essential Features
 
-**Focus Selection**
-- Functionality: Radio group allowing selection between Growth Focused, Lean Growth, Balanced Approach, Lean Profit, and Profit Focused strategies
-- Purpose: Defines the primary campaign optimization strategy
-- Trigger: User clicks on a radio option
-- Progression: User clicks radio → Selection updates → Focus value stored
-- Success criteria: Only one focus can be selected at a time, selection persists
+### Tab Navigation System
+- **Functionality**: Three-tab navigation between Store Settings, Goal Details, and AI Decisions
+- **Purpose**: Organizes the application into logical sections while maintaining context and state
+- **Trigger**: User clicks on any tab label
+- **Progression**: User views tabs → Clicks desired tab → Active indicator moves → New content loads → Previous tab state preserved
+- **Success criteria**: Active tab shows purple underline, smooth transitions, content updates without page reload
 
-**Bid Range Configuration**
-- Functionality: Displays Min Bid and Max Bid fields with recommended values and info tooltips
-- Purpose: Sets the bidding boundaries for ad campaigns
-- Trigger: User views the Focus section
-- Progression: System shows current values → Displays recommended values with sync icons
-- Success criteria: Values are clearly displayed with recommendations visible
+### Store Settings Configuration (Tab 1)
 
-**Target Type Selection**
-- Functionality: Radio toggle between ACoS and TACoS with breakeven calculation display
-- Purpose: Determines the target advertising cost metric
-- Trigger: User clicks ACoS or TACoS radio button
-- Progression: User selects type → Percentage input shown → Breakeven calculation displayed
-- Success criteria: Toggle updates, percentage value persists, breakeven shows correctly
+#### Step-by-Step Journey
+- **Functionality**: Progressive disclosure of configuration steps with clear headings and descriptions
+- **Purpose**: Guides users through complex setup in an understandable sequence
+- **Trigger**: User navigates to Store Settings tab
+- **Progression**: Introduction text → Step 1 (Focus) → Step 2 (Target Metric) → Step 3 (Bid Boundaries) → Step 4 (Optimizations) → Save
+- **Success criteria**: Each step is clearly labeled, descriptive text explains purpose, user can complete setup confidently
 
-**Optimization Settings**
-- Functionality: Three dropdown selectors for Daily Bidding, Negation, and Campaign Creation
-- Purpose: Configures automated optimization behaviors
-- Trigger: User clicks dropdown
-- Progression: User clicks dropdown → Options display → User selects option → Dropdown updates
-- Success criteria: Selected values persist and display correctly
+#### Focus Strategy Selection
+- **Functionality**: Radio button group allowing selection between 5 growth/profit optimization strategies
+- **Purpose**: Sets the primary business objective that influences all other optimization decisions
+- **Trigger**: User clicks on any strategy option
+- **Progression**: User views list → Clicks strategy → Visual highlight appears → Selection state persists
+- **Success criteria**: Selected strategy shows distinct visual emphasis with background highlight and bold text
 
-**Clear and Save Actions**
-- Functionality: Clear Inputs button resets form, Save Goals button persists configuration
-- Purpose: Allows form reset or saving configured values
-- Trigger: User clicks button
-- Progression: Clear: Click → Form resets to defaults | Save: Click → Values persist → Success feedback
-- Success criteria: Clear resets all fields, Save persists data with confirmation
+#### Target Type Configuration
+- **Functionality**: Toggle between ACoS and TACoS metrics with contextual breakeven information
+- **Purpose**: Defines the key performance indicator for advertising spend optimization
+- **Trigger**: User selects ACoS or TACoS radio option
+- **Progression**: User views options → Selects metric → Related calculations update → Breakeven reference displays
+- **Success criteria**: Selected metric is visually indicated and breakeven ACoS link remains accessible
+
+#### Bid Range Settings
+- **Functionality**: Text inputs for minimum and maximum bid amounts with recommended value hints
+- **Purpose**: Establishes safe bidding boundaries to prevent overspend or underperformance
+- **Trigger**: User clicks into input field
+- **Progression**: User focuses field → Enters value → Sees recommendation → Optionally clicks to apply recommendation
+- **Success criteria**: Values are editable, recommendations are clickable and update the input
+
+#### Target ACoS Input
+- **Functionality**: Percentage input field with recommended target suggestion
+- **Purpose**: Sets the goal advertising cost of sale percentage
+- **Trigger**: User clicks input field
+- **Progression**: User focuses field → Enters percentage → Views recommendation → Can apply suggested value
+- **Success criteria**: Input accepts percentage values and displays with proper formatting
+
+#### Collapsible Optimization Sections
+- **Functionality**: Four collapsible sections (Daily Bidding, Dayparting, Campaign Creation, Negation) with dropdown selectors
+- **Purpose**: Configures automated optimization behaviors while reducing visual clutter
+- **Trigger**: User clicks section header to expand/collapse
+- **Progression**: User clicks header → Section expands → Dropdown selector appears → User selects option → Section can collapse
+- **Success criteria**: Smooth accordion-style expansion, caret icon rotates to indicate state, selections persist when collapsed
+
+#### Custom Optimization Dialog
+- **Functionality**: Modal dialog for creating custom Daily Bidding optimization rules
+- **Purpose**: Allows advanced users to define complex conditional automation
+- **Trigger**: User selects "Custom Optimization" from Daily Bidding dropdown
+- **Progression**: User selects option → Dialog opens → User defines conditions → User sets actions → User saves → Dialog closes
+- **Success criteria**: Wide modal displays condition builder and action selector, changes save and persist
+
+### Goal Details (Tab 2)
+- **Functionality**: Placeholder section for future goal management features
+- **Purpose**: Reserved space for viewing and managing advertising goals
+- **Trigger**: User clicks Goal Details tab
+- **Progression**: User navigates to tab → Sees placeholder message
+- **Success criteria**: Clear messaging that feature is coming soon
+
+### AI Decisions Monitoring (Tab 3)
+
+#### Decision Table Display
+- **Functionality**: Comprehensive data table showing all AI-powered bid decisions, status changes, and negations
+- **Purpose**: Provides complete transparency into automated actions for audit and learning
+- **Trigger**: User clicks AI Decisions tab
+- **Progression**: User navigates → Table loads → User can search, filter, paginate → User can view details or revert decisions
+- **Success criteria**: Table displays 7+ sample decisions with all relevant columns, responsive horizontal scroll
+
+#### Search and Filter
+- **Functionality**: Search bar for campaign names and filter button for advanced criteria
+- **Purpose**: Helps users find specific decisions quickly in large datasets
+- **Trigger**: User types in search or clicks filter button
+- **Progression**: User enters query → Table filters in real-time → Results update
+- **Success criteria**: Search is responsive, filter button is accessible
+
+#### Decision Type Tabs
+- **Functionality**: Sub-tabs for Bid Decisions, Status Decisions, and Negating Decisions
+- **Purpose**: Categorizes different types of AI actions for easier review
+- **Trigger**: User clicks sub-tab
+- **Progression**: User switches tab → Table content updates → Active indicator moves
+- **Success criteria**: Smooth tab switching, active state visible
+
+#### Bulk Actions
+- **Functionality**: Checkbox selection and "Revert in Bulk" action
+- **Purpose**: Allows users to undo multiple AI decisions at once
+- **Trigger**: User checks rows and clicks Revert in Bulk
+- **Progression**: User selects decisions → Clicks bulk action → Confirmation → Decisions revert
+- **Success criteria**: Checkboxes functional, bulk button becomes enabled when selections exist
+
+#### Row Details and Revert
+- **Functionality**: Expandable row details and individual revert buttons
+- **Purpose**: Lets users drill into decision context and undo individual actions
+- **Trigger**: User clicks expand icon or revert button
+- **Progression**: Expand: Row expands to show details; Revert: Decision undone with confirmation
+- **Success criteria**: Expand icon toggles row detail, revert provides feedback
+
+### Clear and Save Actions
+- **Functionality**: Buttons to reset all inputs or persist current configuration
+- **Purpose**: Allows users to start over or commit their changes
+- **Trigger**: User clicks Clear Inputs or Save Goals button
+- **Progression**: Clear: Click → All fields reset to defaults → Toast confirmation; Save: Click → Settings persist → Toast success
+- **Success criteria**: Clear resets form, Save shows visual feedback and persists data
 
 ## Edge Case Handling
-- **Missing Selection**: Default to first option in radio groups to ensure valid state
-- **Empty Inputs**: Show placeholder text and recommended values as guidance
-- **Invalid Percentages**: Validate numeric input for target ACoS/TACoS fields
-- **Tooltip Accessibility**: Ensure info icons are keyboard accessible and have ARIA labels
+- **Empty Input Fields**: Validate numeric inputs and show error states for invalid bid ranges
+- **Out of Range Bids**: Warn when min bid exceeds max bid or values are unreasonably high/low
+- **No Selection Made**: Disable save until required fields (focus strategy, target type) are selected
+- **Recommendation Click**: Clicking recommended values should populate the corresponding input field
+- **Tab Switching with Unsaved Changes**: Settings auto-save or maintain state when switching tabs
+- **Empty Search Results**: Show helpful message when search/filter returns no matches in AI Decisions table
+- **Large Data Tables**: Implement pagination and horizontal scroll for many decision records
+- **Checkbox Selection**: Clear all checkboxes when switching between decision type tabs
+- **Dialog State**: Preserve partially completed custom optimization when dialog is cancelled (or clear on cancel with warning)
 
 ## Design Direction
-The design should evoke precision, control, and professionalism fitting for advertising campaign management software. Dark theme with rich navy blues and strategic use of accent colors to guide attention to actionable elements.
+The design should evoke confidence, control, and clarity - feelings essential for users making business-critical advertising decisions. The step-by-step guidance in Store Settings should feel approachable yet professional. The AI Decisions table should convey transparency and trustworthiness, showing users exactly what the system is doing on their behalf. The interface should feel like a premium software tool with sophisticated dark aesthetics reminiscent of modern financial or analytics platforms.
 
 ## Color Selection
-A sophisticated dark interface with electric blue accents and high-contrast text for optimal readability during extended configuration sessions.
+A violet-anchored dark theme with deep navy panels creating depth and sophistication.
 
-- **Primary Color**: Electric Blue (oklch(0.65 0.19 250)) - Communicates technology, precision, and trust; used for active states and primary actions
+- **Primary Color**: Vibrant Violet `oklch(0.62 0.24 293)` - Commands attention for interactive elements and active states, communicating precision and modern tech
 - **Secondary Colors**: 
-  - Deep Navy (oklch(0.18 0.02 250)) - Card backgrounds, provides depth without pure black
-  - Slate Gray (oklch(0.35 0.01 250)) - Borders and dividers, subtle separation
-- **Accent Color**: Bright Blue (oklch(0.72 0.18 250)) - Save button, selected radio states, draws eye to primary actions
+  - Deep Space Background `oklch(0.12 0.01 265)` - Creates immersive dark environment
+  - Slate Panel `oklch(0.18 0.02 255)` - Elevated surfaces for content cards
+  - Input Surface `oklch(0.20 0.02 255)` - Slightly lighter for form fields
+- **Accent Color**: Bright Violet `oklch(0.58 0.26 293)` - Hover states and emphasis for calls-to-action
 - **Foreground/Background Pairings**: 
-  - Primary (Electric Blue oklch(0.65 0.19 250)): White text (oklch(1 0 0)) - Ratio 7.2:1 ✓
-  - Background (Dark Navy oklch(0.15 0.02 250)): Light text (oklch(0.95 0 0)) - Ratio 12.8:1 ✓
-  - Card (Deep Navy oklch(0.18 0.02 250)): White text (oklch(1 0 0)) - Ratio 10.5:1 ✓
-  - Accent (Bright Blue oklch(0.72 0.18 250)): Dark text (oklch(0.15 0 0)) - Ratio 8.1:1 ✓
+  - Background (Deep Space #111217 / oklch(0.12 0.01 265)): Light Gray text (oklch(0.88 0.01 265)) - Ratio 12.5:1 ✓
+  - Panel (Slate #1f232e / oklch(0.18 0.02 255)): White text (oklch(0.98 0 0)) - Ratio 14.8:1 ✓
+  - Primary (Violet / oklch(0.62 0.24 293)): White text (oklch(0.98 0 0)) - Ratio 5.2:1 ✓
+  - Muted Text (oklch(0.60 0.01 265)) on Background - Ratio 6.8:1 ✓
 
 ## Font Selection
-Typography should convey technical precision while maintaining excellent readability for extended configuration work.
+Inter's geometric precision and excellent readability at small sizes makes it ideal for data-dense configuration interfaces.
 
-- **Primary Font**: Inter - Clean, geometric sans-serif with excellent legibility at all sizes
-- **Typographic Hierarchy**:
-  - H1 (Page Title): Inter SemiBold/24px/tight letter spacing
-  - H2 (Section Headers): Inter Medium/11px/wide letter spacing/uppercase
-  - Body (Labels, Values): Inter Regular/14px/normal spacing
-  - Small (Recommended text): Inter Regular/12px/relaxed spacing
+- **Typographic Hierarchy**: 
+  - H1 (Page Title): Inter Semibold/24px/normal letter spacing
+  - H2 (Section Headers): Inter Bold/11px/wide letter spacing/uppercase
+  - H3 (Field Labels): Inter Medium/14px/normal letter spacing
+  - Input Labels: Inter Medium/12px/wide letter spacing/uppercase
+  - Body (Input Values): Inter Medium/14px
+  - Helper Text: Inter Regular/12px
+  - Button Text: Inter Semibold/14px
 
 ## Animations
-Animations should be subtle and functional, reinforcing state changes without distraction.
-
-- Radio selection: Smooth 150ms color transition on state change
-- Dropdown expansion: 200ms ease-out slide with subtle fade
-- Button hover: 100ms lift effect with slight shadow increase
-- Tooltip appearance: 150ms fade-in with micro slide-up
-- Save success: Brief pulse on Save Goals button with toast notification
+Animations should be subtle and purposeful, reinforcing actions without creating delays. Use micro-interactions for state changes (100-150ms), smooth transitions for color shifts on hover (200ms), and gentle scaling feedback on button press. The violet focus ring should fade in smoothly when inputs receive focus.
 
 ## Component Selection
-
-- **Components**:
-  - `RadioGroup` - For Focus selection and Target Type (ACoS/TACoS)
-  - `Select` - For Daily Bidding, Negation, and Campaign Creation dropdowns
-  - `Button` - For Clear Inputs and Save Goals actions
-  - `Card` - For Focus and Optimizations section containers
-  - `Label` - For all form field labels
-  - `Tooltip` - For info icons providing contextual help
-  - `Separator` - For visual division between sections
-  - `Tabs` - For Store Settings, Goal Details, and Optimization List navigation
-  - Toast (sonner) - For save confirmation feedback
-
-- **Customizations**:
-  - Custom radio button styling with blue fill for selected state
-  - Info icon buttons with tooltip triggers positioned inline with labels
-  - Recommended value displays with sync icons
-  - Custom dropdown styling matching the dark theme aesthetic
-  - Badge component for displaying breakeven calculation
-
-- **States**:
-  - Radio buttons: Default (outlined), Selected (filled with blue), Hover (border brightens)
-  - Dropdowns: Closed (dark background), Open (expanded with options), Hover (subtle highlight)
-  - Buttons: Default, Hover (lifted with glow), Active (pressed), Disabled (dimmed)
-  - Info icons: Default, Hover (tooltip appears), Focus (keyboard accessible)
-
-- **Icon Selection**:
-  - `Info` - For tooltip triggers on field labels
-  - `ArrowsClockwise` - For recommended value sync indicators
-  - `Trash` - For Clear Inputs button
-  - `FloppyDisk` - For Save Goals button
-  - `CaretDown` - For dropdown indicators
-
-- **Spacing**:
-  - Section padding: p-6
-  - Card gap: gap-6
-  - Form field gap: gap-4
-  - Label to input: gap-2
-  - Button spacing: px-6 py-2
-
-- **Mobile**:
-  - Stack sections vertically on mobile
-  - Full-width cards and buttons
-  - Maintain generous touch targets (min 44px)
-  - Collapsible sections for smaller screens
-  - Sticky action buttons at bottom on mobile
+- **Components**: 
+  - Tabs for main navigation (Store Settings, Goal Details, AI Decisions) with custom styling
+  - RadioGroup for focus strategy and target type selections
+  - Input for bid amounts and target percentage
+  - Select for optimization dropdowns within collapsible sections
+  - Collapsible/Accordion for optimization sections to reduce visual complexity
+  - Table for displaying AI decision data with complex multi-column layout
+  - Button for Clear Inputs (ghost variant), Save Goals (primary variant), Revert actions, filter trigger
+  - Badge for campaign type indicators (SP, AI, etc.) and target type labels
+  - Card for left sidebar, main content panel, and placeholder sections
+  - Separator for dividing sections
+  - Dialog for custom optimization builder (wider variant)
+  - Checkbox for row selection in tables
+- **Customizations**: 
+  - Tabs require custom borderless styling with bottom border active indicator
+  - Radio buttons need custom violet selection state with highlighted container for active option
+  - Inputs require dark theme styling with violet focus rings
+  - Selects need custom dropdown indicator icon and dark styling
+  - Tab active state requires bottom border indicator
+  - Table needs custom badge styling (emerald for SP/AI tags)
+  - Collapsible headers need hover states and rotating caret icons
+  - Dialog needs max-width increase for complex condition builder
+- **States**: 
+  - Buttons: default/hover (darker violet)/active (scale down)/disabled (low opacity)
+  - Inputs: default/hover (brighter border)/focus (violet ring)/filled
+  - Radio: unchecked/checked (violet)/hover (border highlight)
+  - Dropdowns: closed/open/hover
+  - Collapsible: collapsed/expanded (with rotating caret)
+  - Table rows: default/hover (light muted background)/selected (checkbox checked)
+  - Tabs: inactive (muted text)/active (primary color + border)
+- **Icon Selection**: Phosphor Icons for info tooltips, home navigation, dropdown carets, click indicators, delete action, search, filter, calendar, revert/undo, expand/collapse, pagination
+- **Spacing**: 
+  - Section gaps: 24px (gap-6)
+  - Form field spacing: 20px (gap-5)
+  - Input internal padding: 8px 12px (px-3 py-2)
+  - Card padding: 24px (p-6)
+  - Grid column gap: 24px (gap-6)
+  - Step sections: 12px gap between title and description
+- **Mobile**: 
+  - Two-column layout stacks to single column below 1024px
+  - Navigation tabs remain horizontal with smaller text
+  - Sub-tabs (Bid/Status/Negating Decisions) may stack or scroll horizontally
+  - Table becomes horizontally scrollable with sticky first column
+  - Dropdowns become full-width
+  - Buttons stack vertically in footer
+  - Maintain padding but reduce outer margins
+  - Collapsible sections remain full-width
