@@ -59,9 +59,9 @@ export function OptimizationBuilder({
               variant="ghost"
               size="sm"
               onClick={onBack}
-              className="text-muted-foreground hover:text-primary -ml-2"
+              className="text-muted-foreground hover:text-primary -ml-2 h-7 px-2 text-xs"
             >
-              <ArrowLeft size={16} weight="regular" className="mr-1" />
+              <ArrowLeft size={14} weight="regular" className="mr-1" />
               Back
             </Button>
             <div className="h-4 w-px bg-border"></div>
@@ -88,9 +88,9 @@ export function OptimizationBuilder({
               variant={allScopesSelected ? "default" : "outline"}
               size="sm"
               onClick={onSelectAllScopes}
-              className={allScopesSelected ? "bg-primary text-primary-foreground h-8 text-xs" : "h-8 text-xs"}
+              className={allScopesSelected ? "bg-primary text-primary-foreground h-7 text-xs px-3" : "h-7 text-xs px-3"}
             >
-              {allScopesSelected ? <Check size={14} weight="bold" className="mr-1" /> : null}
+              {allScopesSelected ? <Check size={12} weight="bold" className="mr-1" /> : null}
               {allScopesSelected ? 'All Selected' : 'Select All'}
             </Button>
           </div>
@@ -322,9 +322,9 @@ export function OptimizationBuilder({
             <Button 
               variant="outline"
               onClick={addCondition}
-              className="w-full border-dashed border-2 text-primary hover:text-primary hover:bg-primary/5 h-10 text-xs"
+              className="w-full border-dashed border-2 text-primary hover:text-primary hover:bg-primary/5 h-8 text-xs"
             >
-              <Plus size={16} weight="regular" className="mr-2" />
+              <Plus size={14} weight="regular" className="mr-1.5" />
               Add Another Condition
             </Button>
           </div>
@@ -412,7 +412,7 @@ export function OptimizationBuilder({
           <Button 
             variant="ghost"
             onClick={onBack}
-            className="text-muted-foreground hover:text-card-foreground h-9 px-4 text-sm"
+            className="text-muted-foreground hover:text-card-foreground h-8 px-4 text-xs"
           >
             Cancel
           </Button>
@@ -426,7 +426,7 @@ export function OptimizationBuilder({
               onSave()
             }}
             disabled={selectedScopesCount === 0}
-            className="bg-primary hover:bg-accent text-primary-foreground shadow-lg shadow-primary/20 h-9 px-5 font-semibold text-sm"
+            className="bg-primary hover:bg-accent text-primary-foreground shadow-lg shadow-primary/20 h-8 px-5 font-semibold text-xs"
           >
             Save Optimization
           </Button>

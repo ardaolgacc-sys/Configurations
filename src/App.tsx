@@ -290,7 +290,7 @@ function App() {
                     variant="outline" 
                     size="sm"
                     onClick={() => setShowOnboarding(true)}
-                    className="text-sm font-medium hover:bg-primary/10 hover:text-primary hover:border-primary/30 transition-all h-10 px-4"
+                    className="text-xs font-medium hover:bg-primary/10 hover:text-primary hover:border-primary/30 transition-all h-8 px-3"
                   >
                     Edit Configuration
                   </Button>
@@ -570,7 +570,7 @@ function App() {
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    className="text-sm text-muted-foreground hover:text-primary hover:bg-primary/10 h-9 px-3 font-medium"
+                                    className="text-xs text-muted-foreground hover:text-primary hover:bg-primary/10 h-7 px-2.5 font-medium"
                                   >
                                     See all
                                   </Button>
@@ -578,12 +578,12 @@ function App() {
                                     <PopoverTrigger asChild>
                                       <Button
                                         size="sm"
-                                        className="bg-primary hover:bg-accent text-primary-foreground h-9 px-4 text-sm font-bold shadow-md hover:shadow-lg transition-all"
+                                        className="bg-primary hover:bg-accent text-primary-foreground h-7 px-3 text-xs font-bold shadow-md hover:shadow-lg transition-all"
                                         onClick={(e) => {
                                           e.stopPropagation()
                                         }}
                                       >
-                                        <Plus size={16} weight="bold" className="mr-1.5" />
+                                        <Plus size={14} weight="bold" className="mr-1" />
                                         Add Optimization
                                       </Button>
                                     </PopoverTrigger>
@@ -706,7 +706,7 @@ function App() {
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    className="text-sm text-muted-foreground hover:text-primary hover:bg-primary/10 h-9 px-3 font-medium"
+                                    className="text-xs text-muted-foreground hover:text-primary hover:bg-primary/10 h-7 px-2.5 font-medium"
                                   >
                                     See all
                                   </Button>
@@ -714,12 +714,12 @@ function App() {
                                     <PopoverTrigger asChild>
                                       <Button
                                         size="sm"
-                                        className="bg-primary hover:bg-accent text-primary-foreground h-9 px-4 text-sm font-bold shadow-md hover:shadow-lg transition-all"
+                                        className="bg-primary hover:bg-accent text-primary-foreground h-7 px-3 text-xs font-bold shadow-md hover:shadow-lg transition-all"
                                         onClick={(e) => {
                                           e.stopPropagation()
                                         }}
                                       >
-                                        <Plus size={16} weight="bold" className="mr-1.5" />
+                                        <Plus size={14} weight="bold" className="mr-1" />
                                         Add Optimization
                                       </Button>
                                     </PopoverTrigger>
@@ -850,7 +850,7 @@ function App() {
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    className="text-sm text-muted-foreground hover:text-primary hover:bg-primary/10 h-9 px-3 font-medium"
+                                    className="text-xs text-muted-foreground hover:text-primary hover:bg-primary/10 h-7 px-2.5 font-medium"
                                   >
                                     See all
                                   </Button>
@@ -858,12 +858,12 @@ function App() {
                                     <PopoverTrigger asChild>
                                       <Button
                                         size="sm"
-                                        className="bg-primary hover:bg-accent text-primary-foreground h-9 px-4 text-sm font-bold shadow-md hover:shadow-lg transition-all"
+                                        className="bg-primary hover:bg-accent text-primary-foreground h-7 px-3 text-xs font-bold shadow-md hover:shadow-lg transition-all"
                                         onClick={(e) => {
                                           e.stopPropagation()
                                         }}
                                       >
-                                        <Plus size={16} weight="bold" className="mr-1.5" />
+                                        <Plus size={14} weight="bold" className="mr-1" />
                                         Add Optimization
                                       </Button>
                                     </PopoverTrigger>
@@ -1016,14 +1016,14 @@ function App() {
                       <Button 
                         variant="outline"
                         onClick={handleClear}
-                        className="flex items-center gap-2 h-11 px-5 text-base font-semibold hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition-all"
+                        className="flex items-center gap-2 h-9 px-4 text-sm font-semibold hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition-all"
                       >
-                        <Trash size={18} weight="regular" />
+                        <Trash size={16} weight="regular" />
                         Clear Inputs
                       </Button>
                       <Button 
                         onClick={handleSave}
-                        className="bg-primary hover:bg-accent text-primary-foreground h-11 px-8 text-base font-bold shadow-lg shadow-primary/30 hover:shadow-xl transition-all active:scale-95"
+                        className="bg-primary hover:bg-accent text-primary-foreground h-9 px-6 text-sm font-bold shadow-lg shadow-primary/30 hover:shadow-xl transition-all active:scale-95"
                       >
                         Save Goals
                       </Button>

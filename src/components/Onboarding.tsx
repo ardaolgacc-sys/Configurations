@@ -145,10 +145,11 @@ export function Onboarding({ open, onComplete }: OnboardingProps) {
           </div>
         </div>
 
-        <div className="flex justify-end items-center gap-4 pt-4 border-t border-border flex-shrink-0">
+        <div className="flex justify-end items-center gap-3 pt-4 border-t border-border flex-shrink-0">
           <Button 
             onClick={handleContinue}
-            className="bg-primary hover:bg-accent text-primary-foreground shadow-lg shadow-primary/20 px-8"
+            size="sm"
+            className="bg-primary hover:bg-accent text-primary-foreground shadow-lg shadow-primary/20 px-6 h-8 text-sm"
           >
             Get Started
           </Button>

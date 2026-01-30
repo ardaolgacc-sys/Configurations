@@ -656,10 +656,10 @@ export function CampaignCreation({ onCreateOptimization }: CampaignCreationProps
               
               <Button
                 variant="outline"
-                className="w-full border-dashed border-2 text-primary hover:text-primary hover:bg-primary/5 h-11"
+                className="w-full border-dashed border-2 text-primary hover:text-primary hover:bg-primary/5 h-9 text-sm"
                 onClick={addCondition}
               >
-                <Plus size={18} weight="regular" className="mr-2" />
+                <Plus size={16} weight="regular" className="mr-2" />
                 New Condition
               </Button>
             </div>
@@ -889,16 +889,18 @@ export function CampaignCreation({ onCreateOptimization }: CampaignCreationProps
             </div>
           </div>
 
-          <div className="flex justify-end items-center gap-4 pt-6 border-t border-border">
+          <div className="flex justify-end items-center gap-3 pt-6 border-t border-border">
             <Button
               variant="ghost"
-              className="text-muted-foreground hover:text-card-foreground"
+              size="sm"
+              className="text-muted-foreground hover:text-card-foreground h-8 px-4 text-sm"
             >
               Cancel
             </Button>
             <Button
               onClick={handleSave}
-              className="bg-primary hover:bg-accent text-primary-foreground text-sm font-semibold shadow-lg shadow-primary/20 transition-all active:scale-95"
+              size="sm"
+              className="bg-primary hover:bg-accent text-primary-foreground text-sm font-semibold shadow-lg shadow-primary/20 transition-all active:scale-95 h-8 px-5"
             >
               Save Settings
             </Button>
@@ -956,17 +958,19 @@ export function CampaignCreation({ onCreateOptimization }: CampaignCreationProps
           <div className="flex justify-end items-center gap-3 pt-4 border-t border-border">
             <Button
               variant="ghost"
+              size="sm"
               onClick={() => {
                 setAsinDialogOpen(false)
                 setAsinInput('')
               }}
-              className="text-muted-foreground hover:text-card-foreground"
+              className="text-muted-foreground hover:text-card-foreground h-8 px-4 text-sm"
             >
               Cancel
             </Button>
             <Button
               onClick={saveAsins}
-              className="bg-primary hover:bg-accent text-primary-foreground shadow-lg shadow-primary/20"
+              size="sm"
+              className="bg-primary hover:bg-accent text-primary-foreground shadow-lg shadow-primary/20 h-8 px-5 text-sm"
             >
               Save ASINs
             </Button>

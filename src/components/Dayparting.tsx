@@ -57,14 +57,14 @@ export function Dayparting() {
                   variant={selectedMetric === metric ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setSelectedMetric(metric)}
-                  className={selectedMetric === metric ? 'bg-primary text-primary-foreground' : 'bg-background text-foreground border-border'}
+                  className={`h-7 px-3 text-xs ${selectedMetric === metric ? 'bg-primary text-primary-foreground' : 'bg-background text-foreground border-border'}`}
                 >
                   {metric}
                 </Button>
               ))}
             </div>
-            <Button className="bg-primary hover:bg-accent text-primary-foreground shadow-lg shadow-primary/20">
-              <Plus size={18} weight="regular" className="mr-1" />
+            <Button size="sm" className="bg-primary hover:bg-accent text-primary-foreground shadow-lg shadow-primary/20 h-8 px-4 text-xs">
+              <Plus size={14} weight="regular" className="mr-1" />
               Create Rule
             </Button>
           </div>
