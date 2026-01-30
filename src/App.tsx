@@ -17,6 +17,7 @@ import { Dayparting } from '@/components/Dayparting'
 import { CampaignCreation } from '@/components/CampaignCreation'
 import { Onboarding, CampaignScope } from '@/components/Onboarding'
 import { OptimizationBuilder } from '@/components/OptimizationBuilder'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 type OptimizationType = 'eva-ai' | 'dont-optimize' | 'custom'
 
@@ -273,27 +274,30 @@ function App() {
                 <House size={20} weight="regular" />
               </button>
             </div>
-            {onboardingComplete && (
-              <div className="flex items-center gap-3">
-                {managementType === 'eva-ai' && (
-                  <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 font-medium">
-                    <Sparkle size={14} weight="fill" className="mr-1" />
-                    Eva AI Managed
+            <div className="flex items-center gap-3">
+              <ThemeToggle />
+              {onboardingComplete && (
+                <>
+                  {managementType === 'eva-ai' && (
+                    <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 font-medium">
+                      <Sparkle size={14} weight="fill" className="mr-1" />
+                      Eva AI Managed
+                    </Badge>
+                  )}
+                  <Badge variant="outline" className="bg-muted text-muted-foreground border-border">
+                    {selectedScopes?.length || 0} {(selectedScopes?.length || 0) === 1 ? 'Scope' : 'Scopes'} Active
                   </Badge>
-                )}
-                <Badge variant="outline" className="bg-muted text-muted-foreground border-border">
-                  {selectedScopes?.length || 0} {(selectedScopes?.length || 0) === 1 ? 'Scope' : 'Scopes'} Active
-                </Badge>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => setShowOnboarding(true)}
-                  className="text-xs text-muted-foreground hover:text-primary"
-                >
-                  Edit Configuration
-                </Button>
-              </div>
-            )}
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => setShowOnboarding(true)}
+                    className="text-xs text-muted-foreground hover:text-primary"
+                  >
+                    Edit Configuration
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
           
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

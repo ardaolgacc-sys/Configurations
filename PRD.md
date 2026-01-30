@@ -41,11 +41,11 @@ A multi-step onboarding flow followed by a multi-tab configuration and monitorin
 - **Success criteria**: Active tab shows purple underline, smooth transitions, content updates without page reload
 
 ### Header Configuration Indicators
-- **Functionality**: Badges displaying management type and active scope count
-- **Purpose**: Provides persistent visibility into current configuration
-- **Trigger**: Displays automatically after onboarding completion
-- **Progression**: Always visible → Shows Eva AI badge if applicable → Shows scope count → Edit button allows reconfiguration
-- **Success criteria**: Badges update based on configuration, Edit button reopens onboarding
+- **Functionality**: Badges displaying management type and active scope count, plus theme toggle button
+- **Purpose**: Provides persistent visibility into current configuration and allows theme switching
+- **Trigger**: Displays automatically after onboarding completion; theme toggle responds to clicks
+- **Progression**: Always visible → Shows Eva AI badge if applicable → Shows scope count → Edit button allows reconfiguration → Theme toggle switches between light/dark
+- **Success criteria**: Badges update based on configuration, Edit button reopens onboarding, theme toggle changes theme instantly
 
 ### Store Settings Configuration (Tab 1)
 
@@ -184,39 +184,58 @@ A multi-step onboarding flow followed by a multi-tab configuration and monitorin
 - **Heatmap Interaction**: Hover states show detailed metrics for specific time slots
 - **Dialog State**: Preserve partially completed custom optimization when dialog is cancelled (or clear on cancel with warning)
 - **Reconfiguration**: Reopening onboarding maintains current selections as defaults for editing
+- **Theme Preference Persistence**: Save user's theme choice to localStorage and respect system preference on first visit
+- **Theme Consistency**: Ensure all components render correctly in both light and dark modes with proper contrast
+- **Initial Theme Load**: Apply saved or system-preferred theme before first render to prevent flash
 
 ## Design Direction
-The design should evoke confidence, control, and clarity - feelings essential for users making business-critical advertising decisions. The onboarding journey should feel guided yet empowering with clear choices. The step-by-step guidance in Store Settings should feel approachable yet professional. The heatmap visualization should be immediately intuitive with color intensity conveying performance. The interface should feel like a premium software tool with sophisticated dark aesthetics reminiscent of modern financial or analytics platforms.
+The design should evoke confidence, control, and clarity - feelings essential for users making business-critical advertising decisions. The interface must work seamlessly in both light and dark modes, maintaining visual hierarchy and readability in each context. The onboarding journey should feel guided yet empowering with clear choices. The step-by-step guidance in Store Settings should feel approachable yet professional. The heatmap visualization should be immediately intuitive with color intensity conveying performance. Clean card-based layouts with consistent spacing create visual breathing room while grid structures maintain organization.
 
 ## Color Selection
-A violet-anchored dark theme with deep navy panels creating depth and sophistication.
+A dual-theme system supporting both light and dark modes with violet-anchored primary color.
 
-- **Primary Color**: Vibrant Violet `oklch(0.62 0.24 293)` - Commands attention for interactive elements and active states, communicating precision and modern tech
-- **Secondary Colors**: 
-  - Deep Space Background `oklch(0.12 0.01 265)` - Creates immersive dark environment
-  - Slate Panel `oklch(0.18 0.02 255)` - Elevated surfaces for content cards
-  - Input Surface `oklch(0.20 0.02 255)` - Slightly lighter for form fields
-- **Accent Color**: Bright Violet `oklch(0.58 0.26 293)` - Hover states and emphasis for calls-to-action
-- **Foreground/Background Pairings**: 
-  - Background (Deep Space #111217 / oklch(0.12 0.01 265)): Light Gray text (oklch(0.88 0.01 265)) - Ratio 12.5:1 ✓
-  - Panel (Slate #1f232e / oklch(0.18 0.02 255)): White text (oklch(0.98 0 0)) - Ratio 14.8:1 ✓
-  - Primary (Violet / oklch(0.62 0.24 293)): White text (oklch(0.98 0 0)) - Ratio 5.2:1 ✓
-  - Muted Text (oklch(0.60 0.01 265)) on Background - Ratio 6.8:1 ✓
+**Light Mode:**
+- **Primary Color**: Medium Violet `oklch(0.55 0.22 280)` - Commands attention for interactive elements and active states
+- **Background**: Near White `oklch(0.98 0 0)` - Clean, bright base surface
+- **Card**: Pure White `oklch(1 0 0)` - Elevated surfaces for content cards
+- **Secondary**: Light Gray `oklch(0.93 0.01 265)` - Supporting UI elements
+- **Muted**: Very Light Gray `oklch(0.96 0.005 265)` - Backgrounds for subtle emphasis
+- **Border**: Light Gray `oklch(0.90 0.005 265)` - Dividers and borders
+
+**Dark Mode:**
+- **Primary Color**: Vibrant Violet `oklch(0.62 0.24 293)` - Commands attention for interactive elements and active states
+- **Background**: Deep Space `oklch(0.12 0.01 265)` - Creates immersive dark environment
+- **Card**: Slate Panel `oklch(0.18 0.02 255)` - Elevated surfaces for content cards
+- **Secondary**: Dark Slate `oklch(0.25 0.02 255)` - Supporting UI elements
+- **Muted**: Darker Gray `oklch(0.15 0.02 260)` - Backgrounds for subtle emphasis
+- **Border**: Medium Gray `oklch(0.28 0.02 255)` - Dividers and borders
+
+**Common:**
+- **Accent Color**: Bright Violet (lighter in light mode, brighter in dark mode) - Hover states and emphasis
+- **Destructive**: Red `oklch(0.577 0.245 27.325)` - Warning color for dangerous actions
+
+**Foreground/Background Pairings**: 
+  - Light Mode Background: Dark Text (oklch(0.13 0.01 265)) - Ratio 14.2:1 ✓
+  - Light Mode Card: Dark Text (oklch(0.13 0.01 265)) - Ratio 15.1:1 ✓
+  - Dark Mode Background: Light Gray text (oklch(0.88 0.01 265)) - Ratio 12.5:1 ✓
+  - Dark Mode Card: White text (oklch(0.98 0 0)) - Ratio 14.8:1 ✓
+  - Primary on White (Light): White text (oklch(0.98 0 0)) - Ratio 4.9:1 ✓
+  - Primary on Dark (Dark): White text (oklch(0.98 0 0)) - Ratio 5.2:1 ✓
 
 ## Font Selection
-Inter's geometric precision and excellent readability at small sizes makes it ideal for data-dense configuration interfaces.
+Poppins provides a modern geometric style with excellent readability and a friendly yet professional character suitable for data-dense configuration interfaces.
 
 - **Typographic Hierarchy**: 
-  - H1 (Page Title): Inter Semibold/24px/normal letter spacing
-  - H2 (Section Headers): Inter Bold/11px/wide letter spacing/uppercase
-  - H3 (Field Labels): Inter Medium/14px/normal letter spacing
-  - Input Labels: Inter Medium/12px/wide letter spacing/uppercase
-  - Body (Input Values): Inter Medium/14px
-  - Helper Text: Inter Regular/12px
-  - Button Text: Inter Semibold/14px
+  - H1 (Page Title): Poppins Semibold/24px/normal letter spacing
+  - H2 (Section Headers): Poppins Bold/11px/wide letter spacing/uppercase
+  - H3 (Field Labels): Poppins Medium/14px/normal letter spacing
+  - Input Labels: Poppins Medium/12px/wide letter spacing/uppercase
+  - Body (Input Values): Poppins Medium/14px
+  - Helper Text: Poppins Regular/12px
+  - Button Text: Poppins Semibold/14px
 
 ## Animations
-Animations should be subtle and purposeful, reinforcing actions without creating delays. Use micro-interactions for state changes (100-150ms), smooth transitions for color shifts on hover (200ms), and gentle scaling feedback on button press. The violet focus ring should fade in smoothly when inputs receive focus.
+Animations should be subtle and purposeful, reinforcing actions without creating delays. Use micro-interactions for state changes (100-150ms), smooth transitions for color shifts on hover (200ms), and gentle scaling feedback on button press. The violet focus ring should fade in smoothly when inputs receive focus. Theme transitions between light and dark mode should be instant to avoid jarring visual shifts.
 
 ## Component Selection
 - **Components**: 
@@ -228,7 +247,7 @@ Animations should be subtle and purposeful, reinforcing actions without creating
   - Select for optimization dropdowns and condition builders
   - Collapsible/Accordion for optimization sections to reduce visual complexity
   - Table for displaying AI decision data and optimization rules with priority controls
-  - Button for navigation, actions (Clear, Save, Add Optimization, Create Rule, Revert), and onboarding flow
+  - Button for navigation, actions (Clear, Save, Add Optimization, Create Rule, Revert), theme toggle, and onboarding flow
   - Card for onboarding options, left sidebar, main content panel, and dayparting legend
   - Separator for dividing sections
   - Checkbox for scope selection in onboarding
@@ -239,12 +258,13 @@ Animations should be subtle and purposeful, reinforcing actions without creating
   - Scope selection cards with custom checkbox styling integrated into card
   - Tabs require custom borderless styling with bottom border active indicator
   - Radio buttons need custom violet selection state with highlighted container for active option
-  - Inputs require dark theme styling with violet focus rings
+  - Inputs require theme-aware styling (light/dark) with violet focus rings
   - Heatmap grid requires custom color gradient based on performance intensity
   - Badge needs multiple variants (Eva AI indicator, scope counter, optimization status)
   - Collapsible headers need hover states and rotating caret icons
   - Table rows need priority control arrows inline with row numbers
   - Dialog needs max-width increase for complex condition builder
+  - Theme toggle button in header with Sun/Moon icons
 - **States**: 
   - Onboarding cards: default/hover/selected (with border and background emphasis)
   - Scope checkboxes: unchecked/checked (integrated into card visual state)
@@ -256,6 +276,7 @@ Animations should be subtle and purposeful, reinforcing actions without creating
   - Table rows: default/hover (light muted background)
   - Tabs: inactive (muted text)/active (primary color + border)
   - Priority arrows: default/hover/disabled (when at list boundary)
+  - Theme toggle: light mode (shows moon icon)/dark mode (shows sun icon)
 - **Icon Selection**: Phosphor Icons for:
   - Sparkle (Eva AI indicator)
   - Home (navigation)
@@ -266,6 +287,7 @@ Animations should be subtle and purposeful, reinforcing actions without creating
   - Cursor Click (recommendation indicators)
   - Check (onboarding progress and scope selection)
   - X (dialog close)
+  - Sun/Moon (theme toggle)
 - **Spacing**: 
   - Section gaps: 24px (gap-6)
   - Form field spacing: 20px (gap-5)
