@@ -265,33 +265,32 @@ function App() {
       <Onboarding open={showOnboarding} onComplete={handleOnboardingComplete} />
       
       <div className="flex flex-col h-screen bg-background">
-        <header className="pt-6 px-8 pb-0">
+        <header className="pt-6 px-8 pb-0 border-b border-border/50">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4">
-              <h1 className="text-2xl font-semibold text-card-foreground">Configurations</h1>
-              <div className="h-6 w-px bg-border"></div>
+              <h1 className="text-2xl font-semibold text-foreground">Configurations</h1>
+              <div className="h-6 w-px bg-border/50"></div>
               <button className="text-muted-foreground hover:text-primary transition-colors">
                 <House size={20} weight="regular" />
               </button>
             </div>
             <div className="flex items-center gap-3">
-              <ThemeToggle />
               {onboardingComplete && (
                 <>
                   {managementType === 'eva-ai' && (
-                    <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 font-medium">
-                      <Sparkle size={14} weight="fill" className="mr-1" />
+                    <Badge variant="outline" className="bg-primary/20 text-primary border-primary/30 font-medium px-3 py-1">
+                      <Sparkle size={14} weight="fill" className="mr-1.5" />
                       Eva AI Managed
                     </Badge>
                   )}
-                  <Badge variant="outline" className="bg-muted text-muted-foreground border-border">
+                  <Badge variant="outline" className="bg-card text-foreground border-border px-3 py-1">
                     {selectedScopes?.length || 0} {(selectedScopes?.length || 0) === 1 ? 'Scope' : 'Scopes'} Active
                   </Badge>
                   <Button 
                     variant="ghost" 
                     size="sm"
                     onClick={() => setShowOnboarding(true)}
-                    className="text-xs text-muted-foreground hover:text-primary"
+                    className="text-xs text-muted-foreground hover:text-primary hover:bg-card/50"
                   >
                     Edit Configuration
                   </Button>
@@ -301,28 +300,28 @@ function App() {
           </div>
           
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="w-full justify-start bg-transparent border-b border-border rounded-none h-auto p-0 gap-8">
+            <TabsList className="w-full justify-start bg-transparent border-b-0 rounded-none h-auto p-0 gap-6">
               <TabsTrigger 
                 value="store-settings"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary bg-transparent px-1 pb-3 text-sm font-medium text-muted-foreground data-[state=active]:shadow-none"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary bg-transparent px-1 pb-3 text-sm font-medium text-muted-foreground data-[state=active]:shadow-none hover:text-foreground transition-colors"
               >
                 Store Settings
               </TabsTrigger>
               <TabsTrigger 
                 value="dayparting"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary bg-transparent px-1 pb-3 text-sm font-medium text-muted-foreground data-[state=active]:shadow-none"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary bg-transparent px-1 pb-3 text-sm font-medium text-muted-foreground data-[state=active]:shadow-none hover:text-foreground transition-colors"
               >
                 Dayparting
               </TabsTrigger>
               <TabsTrigger 
                 value="campaign-creation"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary bg-transparent px-1 pb-3 text-sm font-medium text-muted-foreground data-[state=active]:shadow-none"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary bg-transparent px-1 pb-3 text-sm font-medium text-muted-foreground data-[state=active]:shadow-none hover:text-foreground transition-colors"
               >
                 Campaign Creation
               </TabsTrigger>
               <TabsTrigger 
                 value="ai-decisions"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary bg-transparent px-1 pb-3 text-sm font-medium text-muted-foreground data-[state=active]:shadow-none"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary bg-transparent px-1 pb-3 text-sm font-medium text-muted-foreground data-[state=active]:shadow-none hover:text-foreground transition-colors"
               >
                 AI Decisions
               </TabsTrigger>
@@ -331,7 +330,7 @@ function App() {
             <TabsContent value="store-settings" className="mt-0">
               <main className="flex-grow p-6 lg:p-8 overflow-auto">
                 <div className="mb-6">
-                  <h2 className="text-lg font-semibold text-card-foreground mb-2">Configure Your Store Settings</h2>
+                  <h2 className="text-lg font-semibold text-foreground mb-2">Configure Your Store Settings</h2>
                   <p className="text-sm text-muted-foreground">
                     Define your advertising strategy, set bidding parameters, and configure automated optimizations to maximize your campaign performance.
                   </p>
@@ -339,39 +338,39 @@ function App() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                   <div className="lg:col-span-4 flex flex-col gap-6">
-                    <div className="bg-card rounded-lg shadow-sm p-6 border border-border">
+                    <div className="bg-card rounded-lg border border-border/50 p-6 shadow-lg">
                       <div className="space-y-6">
                         <div>
                           <div className="flex items-center justify-between mb-3">
                             <div>
                               <div className="flex items-center gap-2 mb-1">
                                 <Target size={16} weight="bold" className="text-primary" />
-                                <h3 className="text-sm font-semibold text-card-foreground">Step 1: Choose Your Focus</h3>
+                                <h3 className="text-sm font-semibold text-foreground">Step 1: Choose Your Focus</h3>
                               </div>
                               <p className="text-xs text-muted-foreground">Select your primary business objective</p>
                             </div>
                           </div>
-                      <div className="bg-muted rounded-md p-4 space-y-3">
+                      <div className="bg-background rounded-md p-4 space-y-3 border border-border/30">
                         <RadioGroup value={settings.focusStrategy} onValueChange={(v) => updateSetting('focusStrategy', v as FocusStrategy)}>
                           <div className="space-y-3">
                             <label className="flex items-center space-x-3 cursor-pointer group">
-                              <RadioGroupItem value="growth-focused" id="growth-focused" className="h-4 w-4 text-primary border-muted-foreground" />
+                              <RadioGroupItem value="growth-focused" id="growth-focused" className="h-4 w-4 text-primary border-border" />
                               <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">Growth Focused</span>
                             </label>
-                            <label className={`flex items-center space-x-3 cursor-pointer group p-2 -mx-2 rounded ${settings.focusStrategy === 'lean-growth' ? 'bg-primary/10 border border-primary/30' : ''}`}>
-                              <RadioGroupItem value="lean-growth" id="lean-growth" className="h-4 w-4 text-primary border-muted-foreground" />
-                              <span className={`text-sm ${settings.focusStrategy === 'lean-growth' ? 'font-bold text-card-foreground' : 'font-medium text-foreground group-hover:text-primary transition-colors'}`}>Lean Growth</span>
+                            <label className={`flex items-center space-x-3 cursor-pointer group p-2 -mx-2 rounded transition-all ${settings.focusStrategy === 'lean-growth' ? 'bg-primary/20 border border-primary/40' : ''}`}>
+                              <RadioGroupItem value="lean-growth" id="lean-growth" className="h-4 w-4 text-primary border-border" />
+                              <span className={`text-sm ${settings.focusStrategy === 'lean-growth' ? 'font-bold text-foreground' : 'font-medium text-foreground group-hover:text-primary transition-colors'}`}>Lean Growth</span>
                             </label>
                             <label className="flex items-center space-x-3 cursor-pointer group">
-                              <RadioGroupItem value="balanced" id="balanced" className="h-4 w-4 text-primary border-muted-foreground" />
+                              <RadioGroupItem value="balanced" id="balanced" className="h-4 w-4 text-primary border-border" />
                               <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">Balanced Approach</span>
                             </label>
                             <label className="flex items-center space-x-3 cursor-pointer group">
-                              <RadioGroupItem value="lean-profit" id="lean-profit" className="h-4 w-4 text-primary border-muted-foreground" />
+                              <RadioGroupItem value="lean-profit" id="lean-profit" className="h-4 w-4 text-primary border-border" />
                               <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">Lean Profit</span>
                             </label>
                             <label className="flex items-center space-x-3 cursor-pointer group">
-                              <RadioGroupItem value="profit-focused" id="profit-focused" className="h-4 w-4 text-primary border-muted-foreground" />
+                              <RadioGroupItem value="profit-focused" id="profit-focused" className="h-4 w-4 text-primary border-border" />
                               <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">Profit Focused</span>
                             </label>
                           </div>
@@ -383,12 +382,12 @@ function App() {
                       <div className="mb-3">
                         <div className="flex items-center gap-2 mb-1">
                           <ChartLineUp size={16} weight="bold" className="text-primary" />
-                          <h3 className="text-sm font-semibold text-card-foreground">Step 2: Set Your Target Metric</h3>
+                          <h3 className="text-sm font-semibold text-foreground">Step 2: Set Your Target Metric</h3>
                         </div>
                         <p className="text-xs text-muted-foreground">Choose how to measure advertising efficiency</p>
                       </div>
                       <div className="flex items-center gap-1 mb-2">
-                        <Label className="text-sm font-medium text-card-foreground">Target Type</Label>
+                        <Label className="text-sm font-medium text-foreground">Target Type</Label>
                         <Info size={14} weight="regular" className="text-muted-foreground cursor-help" />
                       </div>
                       <RadioGroup value={settings.targetType} onValueChange={(v) => updateSetting('targetType', v as TargetType)} className="flex items-center space-x-4 mb-2">
@@ -406,13 +405,13 @@ function App() {
                       </a>
                     </div>
 
-                    <Separator className="bg-border" />
+                    <Separator className="bg-border/50" />
 
                     <div>
                       <div className="mb-4">
                         <div className="flex items-center gap-2 mb-1">
                           <ShieldCheck size={16} weight="bold" className="text-primary" />
-                          <h3 className="text-sm font-semibold text-card-foreground">Step 3: Define Bid Boundaries</h3>
+                          <h3 className="text-sm font-semibold text-foreground">Step 3: Define Bid Boundaries</h3>
                         </div>
                         <p className="text-xs text-muted-foreground">Set safe minimum and maximum bid limits</p>
                       </div>
@@ -425,10 +424,10 @@ function App() {
                           <Input 
                             value={settings.minBid}
                             onChange={(e) => updateSetting('minBid', e.target.value)}
-                            className="bg-input border-border text-card-foreground"
+                            className="bg-background border-border text-foreground hover:border-primary/50 focus:border-primary transition-colors"
                           />
                           <div className="mt-1 flex items-center text-xs text-muted-foreground">
-                            <span>Recommended: <button onClick={() => applyRecommendation('minBid', '$0.11')} className="underline decoration-dotted cursor-pointer hover:text-card-foreground">$0.11</button></span>
+                            <span>Recommended: <button onClick={() => applyRecommendation('minBid', '$0.11')} className="underline decoration-dotted cursor-pointer hover:text-foreground transition-colors">$0.11</button></span>
                             <CursorClick size={12} weight="regular" className="ml-1" />
                           </div>
                         </div>
@@ -441,10 +440,10 @@ function App() {
                           <Input 
                             value={settings.maxBid}
                             onChange={(e) => updateSetting('maxBid', e.target.value)}
-                            className="bg-input border-border text-card-foreground"
+                            className="bg-background border-border text-foreground hover:border-primary/50 focus:border-primary transition-colors"
                           />
                           <div className="mt-1 flex items-center text-xs text-muted-foreground">
-                            <span>Recommended: <button onClick={() => applyRecommendation('maxBid', '$5.00')} className="underline decoration-dotted cursor-pointer hover:text-card-foreground">$5.00</button></span>
+                            <span>Recommended: <button onClick={() => applyRecommendation('maxBid', '$5.00')} className="underline decoration-dotted cursor-pointer hover:text-foreground transition-colors">$5.00</button></span>
                             <CursorClick size={12} weight="regular" className="ml-1" />
                           </div>
                         </div>
@@ -457,10 +456,10 @@ function App() {
                           <Input 
                             value={settings.targetAcos}
                             onChange={(e) => updateSetting('targetAcos', e.target.value)}
-                            className="bg-input border-border text-card-foreground"
+                            className="bg-background border-border text-foreground hover:border-primary/50 focus:border-primary transition-colors"
                           />
                           <div className="mt-1 flex items-center text-xs text-muted-foreground">
-                            <span>Recommended: <button onClick={() => applyRecommendation('targetAcos', '26.25%')} className="underline decoration-dotted cursor-pointer hover:text-card-foreground">26.25%</button></span>
+                            <span>Recommended: <button onClick={() => applyRecommendation('targetAcos', '26.25%')} className="underline decoration-dotted cursor-pointer hover:text-foreground transition-colors">26.25%</button></span>
                             <CursorClick size={12} weight="regular" className="ml-1" />
                           </div>
                         </div>
@@ -469,10 +468,10 @@ function App() {
                       </div>
                     </div>
 
-                    <div className="bg-gradient-to-br from-primary/5 via-accent/5 to-primary/10 rounded-lg shadow-sm p-6 border border-primary/20">
+                    <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-accent/10 rounded-lg p-6 border border-primary/30 shadow-lg">
                       <div className="flex items-center gap-2 mb-4">
                         <Sparkle size={18} weight="fill" className="text-primary" />
-                        <h3 className="text-sm font-semibold text-card-foreground">Strategy Impact Preview</h3>
+                        <h3 className="text-sm font-semibold text-foreground">Strategy Impact Preview</h3>
                       </div>
                       <p className="text-xs text-muted-foreground mb-4">
                         Based on your selections, here's what to expect:
@@ -481,21 +480,21 @@ function App() {
                         <div className="flex items-start gap-3">
                           <div className="mt-0.5 w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0"></div>
                           <div>
-                            <p className="text-xs font-medium text-card-foreground">Bid Adjustment Range</p>
+                            <p className="text-xs font-medium text-foreground">Bid Adjustment Range</p>
                             <p className="text-xs text-muted-foreground">$0.08 - $3.00 (62.5x spread)</p>
                           </div>
                         </div>
                         <div className="flex items-start gap-3">
                           <div className="mt-0.5 w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0"></div>
                           <div>
-                            <p className="text-xs font-medium text-card-foreground">Expected ACoS Performance</p>
+                            <p className="text-xs font-medium text-foreground">Expected ACoS Performance</p>
                             <p className="text-xs text-muted-foreground">Target: 35% · Breakeven: 42.42%</p>
                           </div>
                         </div>
                         <div className="flex items-start gap-3">
                           <div className="mt-0.5 w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0"></div>
                           <div>
-                            <p className="text-xs font-medium text-card-foreground">Growth vs Profit Balance</p>
+                            <p className="text-xs font-medium text-foreground">Growth vs Profit Balance</p>
                             <p className="text-xs text-muted-foreground">Lean Growth: Moderate spend, quality focus</p>
                           </div>
                         </div>
@@ -509,28 +508,28 @@ function App() {
                     </div>
                   </div>
 
-                  <div className="lg:col-span-8 flex flex-col bg-card rounded-lg shadow-sm p-6 border border-border">
-                    <div className="grid grid-cols-3 gap-4 mb-6 pb-6 border-b border-border">
+                  <div className="lg:col-span-8 flex flex-col bg-card rounded-lg border border-border/50 p-6 shadow-lg">
+                    <div className="grid grid-cols-3 gap-4 mb-6 pb-6 border-b border-border/50">
                       <div className="text-center">
                         <div className="text-2xl font-bold text-primary mb-1">{dailyBiddingOptimizations.length + (negatingOptimizations?.length || 0) + (inventoryGuardOptimizations?.length || 0)}</div>
                         <div className="text-xs text-muted-foreground uppercase tracking-wide">Active Rules</div>
                       </div>
-                      <div className="text-center border-l border-r border-border">
+                      <div className="text-center border-l border-r border-border/50">
                         <div className="text-2xl font-bold text-accent mb-1">{settings.targetAcos}</div>
                         <div className="text-xs text-muted-foreground uppercase tracking-wide">Target ACoS</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-card-foreground mb-1">{settings.focusStrategy.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</div>
+                        <div className="text-2xl font-bold text-foreground mb-1">{settings.focusStrategy.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</div>
                         <div className="text-xs text-muted-foreground uppercase tracking-wide">Strategy</div>
                       </div>
                     </div>
 
                     <div className="mb-6">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-sm font-semibold text-card-foreground">Step 4: Configure Automated Optimizations</h3>
+                        <h3 className="text-sm font-semibold text-foreground">Step 4: Configure Automated Optimizations</h3>
                         {managementType === 'eva-ai' && (
-                          <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-                            <Sparkle size={12} weight="fill" />
+                          <Badge variant="outline" className="bg-primary/20 text-primary border-primary/30">
+                            <Sparkle size={12} weight="fill" className="mr-1.5" />
                             Eva AI Active
                           </Badge>
                         )}
@@ -545,11 +544,11 @@ function App() {
                     
                     <div className="space-y-4 mb-8">
                       <Collapsible open={dailyBiddingOpen || currentOptimizationSection === 'daily-bidding'} onOpenChange={setDailyBiddingOpen}>
-                        <div className="border border-border rounded-lg bg-card">
-                          <CollapsibleTrigger className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+                        <div className="border border-border/50 rounded-lg bg-card/50 backdrop-blur-sm">
+                          <CollapsibleTrigger className="w-full flex items-center justify-between p-4 hover:bg-primary/5 transition-colors rounded-lg">
                             <div className="flex items-center gap-3">
-                              <Label className="text-sm font-medium text-card-foreground cursor-pointer">Daily Bid Optimizations</Label>
-                              <div className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                              <Label className="text-sm font-medium text-foreground cursor-pointer">Daily Bid Optimizations</Label>
+                              <div className="px-2.5 py-0.5 rounded-full bg-primary/30 text-primary text-xs font-semibold border border-primary/40">
                                 {dailyBiddingOptimizations.length} added
                               </div>
                             </div>
@@ -559,7 +558,7 @@ function App() {
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    className="text-xs text-muted-foreground hover:text-primary h-7 px-2"
+                                    className="text-xs text-muted-foreground hover:text-primary hover:bg-primary/10 h-7 px-2"
                                   >
                                     See all
                                   </Button>
@@ -567,36 +566,36 @@ function App() {
                                     <PopoverTrigger asChild>
                                       <Button
                                         size="sm"
-                                        className="bg-primary hover:bg-accent text-primary-foreground h-7 px-3 text-xs font-semibold shadow-sm"
+                                        className="bg-primary hover:bg-primary/80 text-primary-foreground h-7 px-3 text-xs font-semibold shadow-md"
                                         onClick={(e) => {
                                           e.stopPropagation()
                                         }}
                                       >
-                                        <Plus size={14} weight="regular" className="mr-1" />
+                                        <Plus size={14} weight="bold" className="mr-1" />
                                         Add Optimization
                                       </Button>
                                     </PopoverTrigger>
-                                    <PopoverContent className="w-64 p-2" align="end" onClick={(e) => e.stopPropagation()}>
+                                    <PopoverContent className="w-64 p-2 bg-card border-border/50" align="end" onClick={(e) => e.stopPropagation()}>
                                       <div className="space-y-1">
                                         <button
                                           onClick={() => handleOptimizationTypeSelect('eva-ai', 'daily-bidding')}
-                                          className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
+                                          className="w-full text-left px-3 py-2.5 text-sm rounded-md hover:bg-primary/10 transition-colors"
                                         >
-                                          <div className="font-medium text-card-foreground">Optimized by Eva AI</div>
+                                          <div className="font-medium text-foreground">Optimized by Eva AI</div>
                                           <div className="text-xs text-muted-foreground mt-0.5">Let AI handle optimization</div>
                                         </button>
                                         <button
                                           onClick={() => handleOptimizationTypeSelect('dont-optimize', 'daily-bidding')}
-                                          className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
+                                          className="w-full text-left px-3 py-2.5 text-sm rounded-md hover:bg-primary/10 transition-colors"
                                         >
-                                          <div className="font-medium text-card-foreground">Don't Optimize</div>
+                                          <div className="font-medium text-foreground">Don't Optimize</div>
                                           <div className="text-xs text-muted-foreground mt-0.5">Disable optimization</div>
                                         </button>
                                         <button
                                           onClick={() => handleOptimizationTypeSelect('custom', 'daily-bidding')}
-                                          className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
+                                          className="w-full text-left px-3 py-2.5 text-sm rounded-md hover:bg-primary/10 transition-colors"
                                         >
-                                          <div className="font-medium text-card-foreground">Create Your Own</div>
+                                          <div className="font-medium text-foreground">Create Your Own</div>
                                           <div className="text-xs text-muted-foreground mt-0.5">Build custom rules</div>
                                         </button>
                                       </div>
@@ -619,10 +618,10 @@ function App() {
                                   onSelectAllScopes={handleSelectAllBuilderScopes}
                                 />
                               ) : (
-                                <div className="border border-border rounded-lg overflow-hidden">
+                                <div className="border border-border/30 rounded-lg overflow-hidden bg-background/50">
                                   <table className="w-full">
-                                    <thead className="bg-muted/30">
-                                      <tr className="border-b border-border">
+                                    <thead className="bg-muted/50">
+                                      <tr className="border-b border-border/50">
                                         <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide w-8"></th>
                                         <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Title</th>
                                         <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Action</th>
@@ -630,23 +629,23 @@ function App() {
                                         <th className="w-12"></th>
                                       </tr>
                                     </thead>
-                                    <tbody className="bg-card">
+                                    <tbody className="bg-card/30">
                                       {dailyBiddingOptimizations.map((opt, index) => (
-                                        <tr key={opt.id} className="border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors group">
+                                        <tr key={opt.id} className="border-b border-border/30 last:border-b-0 hover:bg-primary/5 transition-colors group">
                                           <td className="py-3 px-4">
                                             <div className="flex items-center gap-2">
                                               <button 
                                                 onClick={() => moveOptimizationUp(index, 'daily-bidding')}
                                                 disabled={index === 0}
-                                                className="text-muted-foreground hover:text-card-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                                className="text-muted-foreground hover:text-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                                               >
                                                 <CaretUp size={14} weight="bold" />
                                               </button>
-                                              <span className="text-sm font-medium text-card-foreground">{opt.id}.</span>
+                                              <span className="text-sm font-medium text-foreground">{opt.id}.</span>
                                               <button 
                                                 onClick={() => moveOptimizationDown(index, 'daily-bidding')}
                                                 disabled={index === dailyBiddingOptimizations.length - 1}
-                                                className="text-muted-foreground hover:text-card-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                                className="text-muted-foreground hover:text-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                                               >
                                                 <CaretDown size={14} weight="bold" />
                                               </button>
@@ -681,11 +680,11 @@ function App() {
                       </Collapsible>
 
                       <Collapsible open={negatingOpen || currentOptimizationSection === 'negating'} onOpenChange={setNegatingOpen}>
-                        <div className="border border-border rounded-lg bg-card">
-                          <CollapsibleTrigger className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+                        <div className="border border-border/50 rounded-lg bg-card/50 backdrop-blur-sm">
+                          <CollapsibleTrigger className="w-full flex items-center justify-between p-4 hover:bg-primary/5 transition-colors rounded-lg">
                             <div className="flex items-center gap-3">
-                              <Label className="text-sm font-medium text-card-foreground cursor-pointer">Negation</Label>
-                              <div className={`px-2 py-0.5 rounded-full text-xs font-medium ${(negatingOptimizations?.length || 0) > 0 ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
+                              <Label className="text-sm font-medium text-foreground cursor-pointer">Negation</Label>
+                              <div className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${(negatingOptimizations?.length || 0) > 0 ? 'bg-primary/30 text-primary border-primary/40' : 'bg-muted/50 text-muted-foreground border-border'}`}>
                                 {negatingOptimizations?.length || 0} added
                               </div>
                             </div>
@@ -695,7 +694,7 @@ function App() {
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    className="text-xs text-muted-foreground hover:text-primary h-7 px-2"
+                                    className="text-xs text-muted-foreground hover:text-primary hover:bg-primary/10 h-7 px-2"
                                   >
                                     See all
                                   </Button>
@@ -703,36 +702,36 @@ function App() {
                                     <PopoverTrigger asChild>
                                       <Button
                                         size="sm"
-                                        className="bg-primary hover:bg-accent text-primary-foreground h-7 px-3 text-xs font-semibold shadow-sm"
+                                        className="bg-primary hover:bg-primary/80 text-primary-foreground h-7 px-3 text-xs font-semibold shadow-md"
                                         onClick={(e) => {
                                           e.stopPropagation()
                                         }}
                                       >
-                                        <Plus size={14} weight="regular" className="mr-1" />
+                                        <Plus size={14} weight="bold" className="mr-1" />
                                         Add Optimization
                                       </Button>
                                     </PopoverTrigger>
-                                    <PopoverContent className="w-64 p-2" align="end" onClick={(e) => e.stopPropagation()}>
+                                    <PopoverContent className="w-64 p-2 bg-card border-border/50" align="end" onClick={(e) => e.stopPropagation()}>
                                       <div className="space-y-1">
                                         <button
                                           onClick={() => handleOptimizationTypeSelect('eva-ai', 'negating')}
-                                          className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
+                                          className="w-full text-left px-3 py-2.5 text-sm rounded-md hover:bg-primary/10 transition-colors"
                                         >
-                                          <div className="font-medium text-card-foreground">Optimized by Eva AI</div>
+                                          <div className="font-medium text-foreground">Optimized by Eva AI</div>
                                           <div className="text-xs text-muted-foreground mt-0.5">Let AI handle optimization</div>
                                         </button>
                                         <button
                                           onClick={() => handleOptimizationTypeSelect('dont-optimize', 'negating')}
-                                          className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
+                                          className="w-full text-left px-3 py-2.5 text-sm rounded-md hover:bg-primary/10 transition-colors"
                                         >
-                                          <div className="font-medium text-card-foreground">Don't Optimize</div>
+                                          <div className="font-medium text-foreground">Don't Optimize</div>
                                           <div className="text-xs text-muted-foreground mt-0.5">Disable optimization</div>
                                         </button>
                                         <button
                                           onClick={() => handleOptimizationTypeSelect('custom', 'negating')}
-                                          className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
+                                          className="w-full text-left px-3 py-2.5 text-sm rounded-md hover:bg-primary/10 transition-colors"
                                         >
-                                          <div className="font-medium text-card-foreground">Create Your Own</div>
+                                          <div className="font-medium text-foreground">Create Your Own</div>
                                           <div className="text-xs text-muted-foreground mt-0.5">Build custom rules</div>
                                         </button>
                                       </div>
@@ -757,10 +756,10 @@ function App() {
                               ) : (
                                 <>
                                   {(negatingOptimizations?.length || 0) > 0 ? (
-                                    <div className="border border-border rounded-lg overflow-hidden">
+                                    <div className="border border-border/30 rounded-lg overflow-hidden bg-background/50">
                                       <table className="w-full">
-                                        <thead className="bg-muted/30">
-                                          <tr className="border-b border-border">
+                                        <thead className="bg-muted/50">
+                                          <tr className="border-b border-border/50">
                                             <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide w-8"></th>
                                             <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Title</th>
                                             <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Action</th>
@@ -768,23 +767,23 @@ function App() {
                                             <th className="w-12"></th>
                                           </tr>
                                         </thead>
-                                        <tbody className="bg-card">
+                                        <tbody className="bg-card/30">
                                           {negatingOptimizations?.map((opt, index) => (
-                                            <tr key={opt.id} className="border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors group">
+                                            <tr key={opt.id} className="border-b border-border/30 last:border-b-0 hover:bg-primary/5 transition-colors group">
                                               <td className="py-3 px-4">
                                                 <div className="flex items-center gap-2">
                                                   <button 
                                                     onClick={() => moveOptimizationUp(index, 'negating')}
                                                     disabled={index === 0}
-                                                    className="text-muted-foreground hover:text-card-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                                    className="text-muted-foreground hover:text-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                                                   >
                                                     <CaretUp size={14} weight="bold" />
                                                   </button>
-                                                  <span className="text-sm font-medium text-card-foreground">{opt.id}.</span>
+                                                  <span className="text-sm font-medium text-foreground">{opt.id}.</span>
                                                   <button 
                                                     onClick={() => moveOptimizationDown(index, 'negating')}
                                                     disabled={index === (negatingOptimizations?.length || 0) - 1}
-                                                    className="text-muted-foreground hover:text-card-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                                    className="text-muted-foreground hover:text-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                                                   >
                                                     <CaretDown size={14} weight="bold" />
                                                   </button>
@@ -825,11 +824,11 @@ function App() {
                       </Collapsible>
 
                       <Collapsible open={inventoryGuardOpen || currentOptimizationSection === 'inventory-guard'} onOpenChange={setInventoryGuardOpen}>
-                        <div className="border border-border rounded-lg bg-card">
-                          <CollapsibleTrigger className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+                        <div className="border border-border/50 rounded-lg bg-card/50 backdrop-blur-sm">
+                          <CollapsibleTrigger className="w-full flex items-center justify-between p-4 hover:bg-primary/5 transition-colors rounded-lg">
                             <div className="flex items-center gap-3">
-                              <Label className="text-sm font-medium text-card-foreground cursor-pointer">Inventory & Performance Guard</Label>
-                              <div className={`px-2 py-0.5 rounded-full text-xs font-medium ${(inventoryGuardOptimizations?.length || 0) > 0 ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
+                              <Label className="text-sm font-medium text-foreground cursor-pointer">Inventory & Performance Guard</Label>
+                              <div className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${(inventoryGuardOptimizations?.length || 0) > 0 ? 'bg-primary/30 text-primary border-primary/40' : 'bg-muted/50 text-muted-foreground border-border'}`}>
                                 {inventoryGuardOptimizations?.length || 0} added
                               </div>
                             </div>
@@ -839,7 +838,7 @@ function App() {
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    className="text-xs text-muted-foreground hover:text-primary h-7 px-2"
+                                    className="text-xs text-muted-foreground hover:text-primary hover:bg-primary/10 h-7 px-2"
                                   >
                                     See all
                                   </Button>
@@ -847,36 +846,36 @@ function App() {
                                     <PopoverTrigger asChild>
                                       <Button
                                         size="sm"
-                                        className="bg-primary hover:bg-accent text-primary-foreground h-7 px-3 text-xs font-semibold shadow-sm"
+                                        className="bg-primary hover:bg-primary/80 text-primary-foreground h-7 px-3 text-xs font-semibold shadow-md"
                                         onClick={(e) => {
                                           e.stopPropagation()
                                         }}
                                       >
-                                        <Plus size={14} weight="regular" className="mr-1" />
+                                        <Plus size={14} weight="bold" className="mr-1" />
                                         Add Optimization
                                       </Button>
                                     </PopoverTrigger>
-                                    <PopoverContent className="w-64 p-2" align="end" onClick={(e) => e.stopPropagation()}>
+                                    <PopoverContent className="w-64 p-2 bg-card border-border/50" align="end" onClick={(e) => e.stopPropagation()}>
                                       <div className="space-y-1">
                                         <button
                                           onClick={() => handleOptimizationTypeSelect('eva-ai', 'inventory-guard')}
-                                          className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
+                                          className="w-full text-left px-3 py-2.5 text-sm rounded-md hover:bg-primary/10 transition-colors"
                                         >
-                                          <div className="font-medium text-card-foreground">Optimized by Eva AI</div>
+                                          <div className="font-medium text-foreground">Optimized by Eva AI</div>
                                           <div className="text-xs text-muted-foreground mt-0.5">Let AI handle optimization</div>
                                         </button>
                                         <button
                                           onClick={() => handleOptimizationTypeSelect('dont-optimize', 'inventory-guard')}
-                                          className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
+                                          className="w-full text-left px-3 py-2.5 text-sm rounded-md hover:bg-primary/10 transition-colors"
                                         >
-                                          <div className="font-medium text-card-foreground">Don't Optimize</div>
+                                          <div className="font-medium text-foreground">Don't Optimize</div>
                                           <div className="text-xs text-muted-foreground mt-0.5">Disable optimization</div>
                                         </button>
                                         <button
                                           onClick={() => handleOptimizationTypeSelect('custom', 'inventory-guard')}
-                                          className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
+                                          className="w-full text-left px-3 py-2.5 text-sm rounded-md hover:bg-primary/10 transition-colors"
                                         >
-                                          <div className="font-medium text-card-foreground">Create Your Own</div>
+                                          <div className="font-medium text-foreground">Create Your Own</div>
                                           <div className="text-xs text-muted-foreground mt-0.5">Build custom rules</div>
                                         </button>
                                       </div>
@@ -901,10 +900,10 @@ function App() {
                               ) : (
                                 <>
                                   {(inventoryGuardOptimizations?.length || 0) > 0 ? (
-                                    <div className="border border-border rounded-lg overflow-hidden">
+                                    <div className="border border-border/30 rounded-lg overflow-hidden bg-background/50">
                                       <table className="w-full">
-                                        <thead className="bg-muted/30">
-                                          <tr className="border-b border-border">
+                                        <thead className="bg-muted/50">
+                                          <tr className="border-b border-border/50">
                                             <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide w-8"></th>
                                             <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Title</th>
                                             <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Action</th>
@@ -912,23 +911,23 @@ function App() {
                                             <th className="w-12"></th>
                                           </tr>
                                         </thead>
-                                        <tbody className="bg-card">
+                                        <tbody className="bg-card/30">
                                           {inventoryGuardOptimizations?.map((opt, index) => (
-                                            <tr key={opt.id} className="border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors group">
+                                            <tr key={opt.id} className="border-b border-border/30 last:border-b-0 hover:bg-primary/5 transition-colors group">
                                               <td className="py-3 px-4">
                                                 <div className="flex items-center gap-2">
                                                   <button 
                                                     onClick={() => moveOptimizationUp(index, 'inventory-guard')}
                                                     disabled={index === 0}
-                                                    className="text-muted-foreground hover:text-card-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                                    className="text-muted-foreground hover:text-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                                                   >
                                                     <CaretUp size={14} weight="bold" />
                                                   </button>
-                                                  <span className="text-sm font-medium text-card-foreground">{opt.id}.</span>
+                                                  <span className="text-sm font-medium text-foreground">{opt.id}.</span>
                                                   <button 
                                                     onClick={() => moveOptimizationDown(index, 'inventory-guard')}
                                                     disabled={index === (inventoryGuardOptimizations?.length || 0) - 1}
-                                                    className="text-muted-foreground hover:text-card-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                                    className="text-muted-foreground hover:text-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                                                   >
                                                     <CaretDown size={14} weight="bold" />
                                                   </button>
@@ -970,10 +969,10 @@ function App() {
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
-                      <div className="bg-muted/20 rounded-lg p-5 border border-border">
+                      <div className="bg-card/50 rounded-lg p-5 border border-border/30 backdrop-blur-sm">
                         <div className="flex items-center gap-2 mb-3">
                           <ChartLineUp size={16} weight="bold" className="text-primary" />
-                          <h4 className="text-xs font-semibold text-card-foreground uppercase tracking-wide">Performance Insight</h4>
+                          <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">Performance Insight</h4>
                         </div>
                         <p className="text-sm text-foreground leading-relaxed mb-2">
                           Campaigns with automated bid optimizations see an average <span className="font-semibold text-primary">23% improvement</span> in ROAS within 30 days.
@@ -983,10 +982,10 @@ function App() {
                         </p>
                       </div>
 
-                      <div className="bg-muted/20 rounded-lg p-5 border border-border">
+                      <div className="bg-card/50 rounded-lg p-5 border border-border/30 backdrop-blur-sm">
                         <div className="flex items-center gap-2 mb-3">
                           <Lightbulb size={16} weight="bold" className="text-accent" />
-                          <h4 className="text-xs font-semibold text-card-foreground uppercase tracking-wide">Pro Tip</h4>
+                          <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">Pro Tip</h4>
                         </div>
                         <p className="text-sm text-foreground leading-relaxed mb-2">
                           Start with Eva AI management to gather performance data, then add custom rules to fine-tune specific scenarios.
@@ -997,18 +996,18 @@ function App() {
                       </div>
                     </div>
 
-                    <div className="mt-auto flex justify-end items-center gap-4 pt-6 border-t border-border">
+                    <div className="mt-auto flex justify-end items-center gap-4 pt-6 border-t border-border/50">
                       <Button 
                         variant="ghost"
                         onClick={handleClear}
-                        className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-card-foreground"
+                        className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-card/50"
                       >
                         <Trash size={16} weight="regular" />
                         Clear Inputs
                       </Button>
                       <Button 
                         onClick={handleSave}
-                        className="bg-primary hover:bg-accent text-primary-foreground text-sm font-semibold shadow-lg shadow-primary/20 transition-all active:scale-95"
+                        className="bg-primary hover:bg-primary/80 text-primary-foreground text-sm font-semibold shadow-lg shadow-primary/30 transition-all active:scale-95"
                       >
                         Save Goals
                       </Button>
